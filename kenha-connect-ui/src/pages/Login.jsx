@@ -1,97 +1,34 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    if (!form.email || !form.password) {
-      setError("Both fields are required.");
+    const res = await fetch('http://localhost/PROJECTKeNHA/backend/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      navigate('/dashboard'); // or home
     } else {
-      setError('');
-      console.log("Logged in:", form);
-      navigate("/home");
+      alert('Login failed');
     }
   };
 
   return (
-    <div style={{
-      background: "linear-gradient(to right, #0f2027, #203a43, #2c5364)",
-      minHeight: "100vh",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      padding: "30px",
-      color: "#fff"
-    }}>
-      <div style={{
-        background: "rgba(255, 255, 255, 0.1)",
-        backdropFilter: "blur(10px)",
-        padding: "40px",
-        borderRadius: "12px",
-        width: "100%",
-        maxWidth: "500px",
-        boxShadow: "0 0 15px rgba(0,0,0,0.3)"
-      }}>
-        <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Login</h2>
-        {error && <p style={{ color: "#ff5722", textAlign: "center" }}>{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none"
-              }}
-            />
-          </div>
-          <div style={{ marginBottom: "20px" }}>
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none"
-              }}
-            />
-          </div>
-          <button
-            type="submit"
-            style={{
-              width: "100%",
-              backgroundColor: "#03a9f4",
-              color: "#fff",
-              border: "none",
-              padding: "10px",
-              borderRadius: "5px",
-              fontWeight: "bold"
-            }}
-          >
-            Login
-          </button>
-          <p style={{ marginTop: "15px", textAlign: "center" }}>
-            Don't have an account? <Link to="/register" style={{ color: "#4caf50" }}>Register</Link>
-          </p>
-        </form>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit} style={{ padding: 20, maxWidth: 400, margin: '0 auto' }}>
+      <h2>Login</h2>
+      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+      <button type="submit">Login</button>
+    </form>
   );
 }
