@@ -1,18 +1,19 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Landing from './pages/Landing';
-import Register from './pages/Register';
-import Login from './pages/Login';
+import Sidebar from './components/Sidebar';
+import Home from './pages/Home';
+import ResolvedNews from './pages/ResolvedNews';
 
-function App() {
+export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+      <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9' }}>
+        <Sidebar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/news" element={<ResolvedNews />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
-
-export default App;
