@@ -1,34 +1,48 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/UnifiedLayout.css';
 
 export default function Login() {
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async e => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     const res = await fetch('http://localhost/PROJECTKeNHA/backend/login.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (data.status === 'success') {
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard'); // or home
+      navigate('/home');
     } else {
-      alert('Login failed');
+      alert(data.message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: 20, maxWidth: 400, margin: '0 auto' }}>
-      <h2>Login</h2>
-      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-      <button type="submit">Login</button>
-    </form>
+    <div className="page-wrapper">
+      <form className="glass-card" onSubmit={handleLogin}>
+        <h2>Login</h2>
+        <input
+          type="email"
+          placeholder="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Enter password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Log In</button>
+      </form>
+    </div>
   );
 }

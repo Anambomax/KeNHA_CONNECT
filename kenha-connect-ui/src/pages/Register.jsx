@@ -1,36 +1,64 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
 
-export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', county: '' });
-  const navigate = useNavigate();
+const Register = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    county: "",
+    phone: "",
+    password: "",
+    confirmPassword: ""
+  });
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async e => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost/PROJECTKeNHA/backend/register.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
-    const data = await res.json();
-    if (data.status === 'success') {
-      alert('Registration successful!');
-      navigate('/login');
-    } else {
-      alert(data.message || 'Registration failed!');
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost/PROJECTKeNHA/backend/register.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Registration successful! Redirecting to login...");
+        window.location.href = "/login";
+      } else {
+        alert("Registration failed: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred during registration.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: 20, maxWidth: 400, margin: '0 auto' }}>
+    <div className="container mt-5">
       <h2>Register</h2>
-      <input name="name" placeholder="Name" onChange={handleChange} required />
-      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-      <input name="county" placeholder="County" onChange={handleChange} required />
-      <button type="submit">Register</button>
-    </form>
+      <form onSubmit={handleRegister}>
+        <input type="text" name="name" placeholder="Full Name" onChange={handleChange} required /><br />
+        <input type="email" name="email" placeholder="Email" onChange={handleChange} required /><br />
+        <input type="text" name="county" placeholder="County" onChange={handleChange} required /><br />
+        <input type="text" name="phone" placeholder="Phone Number" onChange={handleChange} required /><br />
+        <input type="password" name="password" placeholder="Password" onChange={handleChange} required /><br />
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} required /><br />
+        <button type="submit">Register</button>
+      </form>
+    </div>
   );
-}
+};
+
+export default Register;
