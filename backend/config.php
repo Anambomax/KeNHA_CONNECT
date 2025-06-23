@@ -1,11 +1,20 @@
 <?php
-$host = "localhost";
-$db = "kenha";
-$user = "root";
-$pass = ""; // blank if default XAMPP
+// Allow API access
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 
-$conn = new mysqli($host, $user, $pass, $db);
+// Connect to the database
+$servername = "localhost";
+$username   = "root";
+$password   = "";
+$database   = "kenha_connect";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Check connection
 if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 ?>

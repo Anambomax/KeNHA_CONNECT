@@ -1,32 +1,59 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST");
+
 include 'config.php';
 
-$user_id = $_POST['user_id'];
-$description = $_POST['description'];
-$location = $_POST['location'];
-$latitude = $_POST['latitude'];
-$longitude = $_POST['longitude'];
-$image_path = '';
-
-if (isset($_FILES['image'])) {
-    $upload_dir = 'uploads/';
-    if (!is_dir($upload_dir)) mkdir($upload_dir, 0755, true);
-    $file_name = time() . '_' . $_FILES['image']['name'];
-    $target = $upload_dir . basename($file_name);
-
-    if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-        $image_path = $target;
-    }
-}
-
-$stmt = $conn->prepare("INSERT INTO incidents (user_id, description, location, image_path, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("isssdd", $user_id, $description, $location, $image_path, $latitude, $longitude);
-
 $response = [];
-if ($stmt->execute()) {
-    $response['status'] = 'success';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['description'], $_POST['user_id']) && isset($_FILES['image'])) {
+        $description = $_POST['description'];
+        $user_id = $_POST['user_id'];
+        $image = $_FILES['image'];
+
+        $targetDir = "../uploads/";
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        $imageName = uniqid() . '_' . basename($image["name"]);
+        $targetFile = $targetDir . $imageName;
+
+        if (move_uploaded_file($image["tmp_name"], $targetFile)) {
+            $stmt = $conn->prepare("INSERT INTO incidents (user_id, description, image) VALUES (?, ?, ?)");
+            $stmt->bind_param("iss", $user_id, $description, $imageName);
+
+            if ($stmt->execute()) {
+                $response = [
+                    "success" => true,
+                    "message" => "Incident submitted successfully"
+                ];
+            } else {
+                $response = [
+                    "success" => false,
+                    "message" => "Database error: " . $conn->error
+                ];
+            }
+        } else {
+            $response = [
+                "success" => false,
+                "message" => "Failed to upload image"
+            ];
+        }
+    } else {
+        $response = [
+            "success" => false,
+            "message" => "Missing required data"
+        ];
+    }
 } else {
-    $response['status'] = 'error';
+    $response = [
+        "success" => false,
+        "message" => "Invalid request method"
+    ];
 }
+
 echo json_encode($response);
 ?>
