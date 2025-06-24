@@ -1,22 +1,31 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import Sidebar from "./components/Sidebar";
+import Feed from "./components/Feed";
+import RightPanel from "./components/RightPanel";
 
-import Landing from "./pages/Landing";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
+const dummyIncidents = [
+  {
+    id: 1,
+    title: "Truck overturned",
+    description: "Blocked highway at 8:00AM",
+    image: "",
+    timestamp: Date.now(),
+  },
+  {
+    id: 2,
+    title: "Bridge crack",
+    description: "Detected cracks near Nyali",
+    image: "",
+    timestamp: Date.now(),
+  },
+];
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} /> {/* ✅ Landing Page */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-      </Routes>
-    </Router>
+    <div className="flex bg-[#F0F4F8] min-h-screen font-sans">
+      <Sidebar />
+      <Feed incidents={dummyIncidents} />
+      <RightPanel />
+    </div>
   );
 }
 

@@ -1,29 +1,21 @@
-import { Link } from 'react-router-dom';
+// src/components/Sidebar.jsx
+import { FaHome, FaUser, FaSignOutAlt } from "react-icons/fa";
 
 export default function Sidebar() {
   return (
-    <div style={{
-      width: '250px',
-      background: '#0f172a',
-      color: '#fff',
-      padding: '30px 20px'
-    }}>
-      <h2>KeNHA Connect</h2>
-      <nav style={{ marginTop: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>🏠 Home</Link>
-        <Link to="/news" style={{ color: '#fff', textDecoration: 'none' }}>📢 Resolved Issues</Link>
-        <button style={{
-          marginTop: '30px',
-          padding: '10px 15px',
-          background: '#38bdf8',
-          color: '#000',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer'
-        }}>
-          ➕ Post Incident
-        </button>
-      </nav>
+    <div className="w-1/5 h-screen bg-gradient-to-b from-[#034078] to-[#1282A2] text-white p-6 fixed left-0 shadow-lg">
+      <h2 className="text-2xl font-extrabold mb-10 tracking-wide">KeNHA Connect</h2>
+      <ul className="space-y-6 text-lg">
+        <li className="flex items-center gap-3 cursor-pointer hover:text-[#FDC500] transition">
+          <FaHome /> Home
+        </li>
+        <li className="flex items-center gap-3 cursor-pointer hover:text-[#FDC500] transition">
+          <FaUser /> Profile
+        </li>
+        <li className="flex items-center gap-3 cursor-pointer hover:text-[#FDC500] transition">
+          <FaSignOutAlt /> Logout
+        </li>
+      </ul>
     </div>
   );
 }
