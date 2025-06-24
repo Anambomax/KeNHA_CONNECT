@@ -1,97 +1,63 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import '../App.css';
+
+const counties = [
+  "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo Marakwet", "Embu", "Garissa", "Homa Bay", "Isiolo",
+  "Kajiado", "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii", "Kisumu", "Kitui",
+  "Kwale", "Laikipia", "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit", "Meru", "Migori",
+  "Mombasa", "Murang'a", "Nairobi", "Nakuru", "Nandi", "Narok", "Nyamira", "Nyandarua", "Nyeri",
+  "Samburu", "Siaya", "Taita Taveta", "Tana River", "Tharaka Nithi", "Trans Nzoia", "Turkana",
+  "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
+];
 
 const Register = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    county: "",
-    phone: "",
-    password: "",
-    confirmPassword: ""
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    county: '',
+    phone: '',
+    password: '',
+    confirm: ''
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
-    setFormData({...formData, [e.target.name]: e.target.value});
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+    if (form.password !== form.confirm) {
+      alert("Passwords do not match");
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost/PROJECTKeNHA/backend/register.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert("Registration successful! Please login.");
-        navigate("/login"); // ✅ redirect to login
-      } else {
-        alert("Registration failed: " + data.message);
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      alert("An error occurred during registration.");
-    }
+    alert("Registered Successfully!");
+    navigate('/login');
   };
 
   return (
-    <div
-      style={{
-        background: "linear-gradient(to right, #6dd5fa, #2980b9)",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "20px"
-      }}
-    >
-      <form
-        onSubmit={handleRegister}
-        style={{
-          backgroundColor: "#fff",
-          padding: "30px",
-          borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          width: "100%",
-          maxWidth: "450px"
-        }}
-      >
-        <h2 style={{ textAlign: "center", color: "#2980b9", marginBottom: "20px" }}>
-          KeNHA Connect - Register
-        </h2>
-
-        <input type="text" name="name" placeholder="Full Name" className="form-control mb-3" value={formData.name} onChange={handleChange} required />
-        <input type="email" name="email" placeholder="Email" className="form-control mb-3" value={formData.email} onChange={handleChange} required />
-        
-        <select name="county" className="form-control mb-3" value={formData.county} onChange={handleChange} required>
-          <option value="">Select County</option>
-          <option value="Nairobi">Nairobi</option>
-          <option value="Mombasa">Mombasa</option>
-          <option value="Kisumu">Kisumu</option>
-          <option value="Nakuru">Nakuru</option>
-        </select>
-
-        <input type="tel" name="phone" placeholder="Phone Number" className="form-control mb-3" value={formData.phone} onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" className="form-control mb-3" value={formData.password} onChange={handleChange} required />
-        <input type="password" name="confirmPassword" placeholder="Confirm Password" className="form-control mb-4" value={formData.confirmPassword} onChange={handleChange} required />
-        
-        <button type="submit" className="btn btn-primary w-100">Register</button>
-
-        <p className="text-center mt-3">
-          Already have an account? <a href="/login">Login here</a>
-        </p>
-      </form>
+    <div className="auth-page">
+      <div className="auth-container">
+        <h2>Register on KeNHA Connect</h2>
+        <form onSubmit={handleRegister}>
+          <input type="text" name="name" placeholder="Full Name" required onChange={handleChange} />
+          <input type="email" name="email" placeholder="Email" required onChange={handleChange} />
+          <select name="county" required onChange={handleChange}>
+            <option value="">Select County</option>
+            {counties.map((county, index) => (
+              <option key={index} value={county}>{county}</option>
+            ))}
+          </select>
+          <input type="text" name="phone" placeholder="Phone Number" required onChange={handleChange} />
+          <input type="password" name="password" placeholder="Password" required onChange={handleChange} />
+          <input type="password" name="confirm" placeholder="Confirm Password" required onChange={handleChange} />
+          <button type="submit" className="btn secondary">Register</button>
+        </form>
+        <p>Already have an account? <Link to="/login">Login</Link></p>
+      </div>
     </div>
   );
 };

@@ -1,40 +1,42 @@
-import React from "react";
-import ReportIncident from "../components/ReportIncident";
-import PublicChannel from "../components/PublicChannel";
-import ProfileCard from "../components/ProfileCard";
+import React from 'react';
+import Navbar from '../components/Navbar';
+import IncidentCard from '../components/IncidentCard';
+import { Link } from 'react-router-dom';
+
+const samplePosts = [
+  {
+    id: 1,
+    author: "Jane Mwangi",
+    description: "Large pothole along Mbagathi Way causing traffic.",
+    image: "https://via.placeholder.com/500x250",
+    status: "Pending",
+    likes: 8
+  },
+  {
+    id: 2,
+    author: "KeNHA Officer",
+    description: "Pothole sealed on Thika Road near Safari Park. Resolved!",
+    image: "https://via.placeholder.com/500x250",
+    status: "Resolved",
+    likes: 21
+  }
+];
 
 const Home = () => {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(to right, #2980b9, #6dd5fa)",
-        padding: "30px",
-      }}
-    >
-      <div className="container">
-        <h2
-          className="text-white mb-4"
-          style={{ fontWeight: "bold", textShadow: "1px 1px #000" }}
-        >
-          👋 Welcome to KeNHA Connect
-        </h2>
-
-        <div className="row">
-          {/* Left Column: Report Incident */}
-          <div className="col-md-6 mb-4">
-            <ReportIncident />
-          </div>
-
-          {/* Right Column: Profile & Public */}
-          <div className="col-md-6 mb-4">
-            <ProfileCard />
-            <div className="mt-4">
-              <PublicChannel />
-            </div>
-          </div>
-        </div>
+    <div className="home-page">
+      <Navbar />
+      <div className="home-feed">
+        <h2>KeNHA Public Channel</h2>
+        {samplePosts.map(post => (
+          <IncidentCard key={post.id} post={post} />
+        ))}
       </div>
+
+      {/* Floating + Report Button */}
+      <Link to="/report" className="floating-report-btn">
+        + Report
+      </Link>
     </div>
   );
 };
