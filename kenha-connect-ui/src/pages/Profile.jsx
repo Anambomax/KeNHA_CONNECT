@@ -1,22 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import '../App.css';
-
-const user = {
-  name: "Jane Mwangi",
-  email: "jane@example.com",
-  county: "Nairobi",
-  role: "Citizen",
-  avatar: "https://via.placeholder.com/120x120.png?text=JM"
-};
+import axios from 'axios';
 
 const Profile = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const user_id = localStorage.getItem("user_id");
+    if (!user_id) return;
+
+    axios.post("http://localhost/PROJECTKeNHA/backend/get_user.php", { user_id })
+      .then(res => {
+        setUser(res.data);
+      })
+      .catch(err => {
+        console.error("Failed to fetch user:", err);
+      });
+  }, []);
+
+  if (!user) return <div className="profile-page"><Navbar /><p>Loading...</p></div>;
+
   return (
     <div className="profile-page">
       <Navbar />
       <div className="profile-container">
         <div className="profile-header">
-          <img src={user.avatar} alt="Profile" className="profile-avatar" />
+          <img src="https://via.placeholder.com/120x120.png?text=User" alt="Avatar" className="profile-avatar" />
           <div className="profile-details">
             <h2>{user.name}</h2>
             <p>{user.email}</p>
@@ -25,7 +35,10 @@ const Profile = () => {
           </div>
           <div className="profile-actions">
             <button className="btn secondary">Edit Profile</button>
-            <button className="btn primary" style={{ marginTop: '10px' }}>Logout</button>
+            <button className="btn primary" onClick={() => {
+              localStorage.clear();
+              window.location.href = "/login";
+            }}>Logout</button>
           </div>
         </div>
         <hr />
