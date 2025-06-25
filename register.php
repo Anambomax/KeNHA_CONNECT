@@ -2,22 +2,34 @@
 session_start();
 include("includes/config.php");
 
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");
+    exit;
+}
+
 $msg = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST["name"];
-    $email = $_POST["email"];
-    $county = $_POST["county"];
-    $phone = $_POST["phone"];
-    $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+    $name = trim($_POST["name"]);
+    $email = trim($_POST["email"]);
+    $county = trim($_POST["county"]);
+    $phone = trim($_POST["phone"]);
+    $password = trim($_POST["password"]);
+    $confirm = trim($_POST["confirm"]);
 
-    $stmt = $conn->prepare("INSERT INTO users (name, email, county, phone, password) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $name, $email, $county, $phone, $password);
-    if ($stmt->execute()) {
-        header("Location: index.php");
-        exit;
+    if ($password !== $confirm) {
+        $msg = "Passwords do not match.";
     } else {
-        $msg = "Registration failed. Email may already exist.";
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $conn->prepare("INSERT INTO users (name, email, county, phone, password) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $name, $email, $county, $phone, $hashed);
+
+        if ($stmt->execute()) {
+            header("Location: index.php");
+            exit;
+        } else {
+            $msg = "Registration failed. Try a different email.";
+        }
     }
 }
 ?>
@@ -26,14 +38,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <title>Register | KeNHA Connect</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; color: #000; }
+    .card { border-left: 5px solid #ffc107; }
+    .btn-yellow { background-color: #ffc107; border: none; color: black; }
+    .btn-yellow:hover { background-color: #e0a800; }
+  </style>
 </head>
-<body class="bg-light">
+<body>
   <div class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-6">
         <div class="card shadow">
           <div class="card-body">
-            <h4 class="text-center text-success">Register</h4>
+            <h4 class="text-center mb-4" style="color:#ffc107;">Create Your Account</h4>
             <?php if ($msg): ?><div class="alert alert-danger"><?= $msg ?></div><?php endif; ?>
             <form method="POST">
               <div class="mb-3">
@@ -56,7 +74,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label>Password</label>
                 <input type="password" name="password" class="form-control" required>
               </div>
-              <button class="btn btn-success w-100">Register</button>
+              <div class="mb-3">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm" class="form-control" required>
+              </div>
+              <button class="btn btn-yellow w-100">Register</button>
             </form>
             <div class="text-center mt-3">
               <a href="index.php">Already have an account? Login</a>
