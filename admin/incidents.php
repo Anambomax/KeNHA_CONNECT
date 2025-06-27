@@ -6,7 +6,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 $query = "SELECT i.id, i.title, i.description, i.status, u.full_name AS reporter, u.department 
-          FROM incidents i JOIN users u ON i.user_id = u.id";
+          FROM incidents i 
+          JOIN users u ON i.user_id = u.id";
 $result = $conn->query($query);
 ?>
 <h2>All Incidents</h2>

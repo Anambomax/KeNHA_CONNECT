@@ -6,7 +6,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 $query = "SELECT i.id, i.title, i.description, u.full_name 
-          FROM incidents i JOIN users u ON i.user_id = u.id 
+          FROM incidents i 
+          JOIN users u ON i.user_id = u.id 
           WHERE i.status = 'closed'";
 $result = $conn->query($query);
 ?>
