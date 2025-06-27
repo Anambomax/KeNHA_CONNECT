@@ -1,8 +1,8 @@
 <?php
 session_start();
-if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
-    exit();
+if (isset($_SESSION['email'])) {
+  header("Location: dashboard.php");
+  exit();
 }
 ?>
 
@@ -15,32 +15,18 @@ if (isset($_SESSION['user_id'])) {
 </head>
 <body class="kenha-bg">
   <div class="login-wrapper">
-    <form action="../api/login.php" method="POST" class="login-box">
-      <!-- LOGO -->
-      <img src="uploads/kenha-logo.png" alt="KeNHA Logo" class="logo">
-      
-      <h2>KENHA CONNECT</h2>
-
-      <input type="text" name="username" placeholder="User Name" required>
-      <input type="password" name="password" placeholder="Password" required>
-
-      <div class="captcha-box">
-        <input type="checkbox" required>
-        <label>I'm not a robot</label>
-      </div>
-
-      <div class="remember-me">
-        <input type="checkbox" name="remember">
-        <label>Remember Me</label>
-      </div>
-
-      <button type="submit" class="btn">Sign In</button>
-
+    <div class="login-box">
+      <img src="uploads/kenha-logo.png" class="logo" alt="KeNHA Logo">
+      <h2 class="subtitle">KENHA CONNECT</h2>
+      <form action="../api/login.php" method="POST">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button class="btn" type="submit">Login</button>
+      </form>
       <div class="extra-links">
-        <a href="#">Forgot password?</a>
-        <p class="register-link">Don't have an account? <a href="register.php">Register here</a></p>
+        <p>Don't have an account? <a href="register.php">Register</a></p>
       </div>
-    </form>
+    </div>
   </div>
 </body>
 </html>

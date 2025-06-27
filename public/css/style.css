@@ -1,86 +1,213 @@
+/* === General Styles === */
 body.kenha-bg {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background-image: url('../uploads/background.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f2f2f2;
 }
 
-.login-wrapper {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-box {
-  background: rgba(255, 255, 255, 0.97);
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
-  width: 330px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.logo {
-  width: 100px;
-  height: auto;
-  margin-bottom: 10px;
-}
-
-.login-box h2 {
-  margin-bottom: 20px;
-  font-weight: 600;
-  color: #222;
-}
-
-.login-box input[type="text"],
-.login-box input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  margin: 12px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-}
-
-.captcha-box,
-.remember-me {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-.captcha-box input,
-.remember-me input {
-  margin-right: 8px;
+h2, h3, h4 {
+  margin-top: 0;
 }
 
 .btn {
+  background-color: #003366;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.btn:hover {
+  background-color: #002244;
+}
+
+input, select, textarea {
   width: 100%;
   padding: 10px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* === Login & Register Styles === */
+.login-wrapper, .register-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url('../uploads/background.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.login-box, .register-box {
+  background-color: rgba(255, 255, 255, 0.97);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-box .logo,
+.register-box .logo {
+  display: block;
+  margin: 0 auto 20px auto;
+  width: 80px; /* Original size for login/register */
+  max-width: 80px;
+}
+
+.subtitle {
+  text-align: center;
+  margin-bottom: 20px;
   font-size: 16px;
-  cursor: pointer;
-  margin-top: 15px;
+  color: #555;
 }
 
 .extra-links {
+  text-align: center;
   margin-top: 15px;
   font-size: 14px;
 }
 
 .extra-links a {
-  color: #007BFF;
+  color: #003366;
   text-decoration: none;
 }
 
-.register-link {
-  margin-top: 10px;
+.extra-links a:hover {
+  text-decoration: underline;
+}
+
+/* === Dashboard Layout === */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f9f9f9;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #003366;
+  color: white;
+  padding: 20px;
+  position: fixed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar .kenha-logo {
+  width: 100px; /* Medium size for dashboard */
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.kenha-title {
+  font-size: 18px;
+  margin: 0;
+  text-align: center;
+}
+
+.nav-menu {
+  width: 100%;
+}
+
+.nav-menu ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.nav-menu li {
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #004080;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.nav-menu li:hover,
+.nav-menu li.active {
+  background-color: #0059b3;
+}
+
+.nav-menu a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+.main-content {
+  margin-left: 260px;
+  padding: 30px;
+  flex-grow: 1;
+}
+
+.tab-section {
+  display: none;
+}
+
+.tab-section.active {
+  display: block;
+}
+
+/* User Profile Card */
+.user-profile {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.info-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* Feed & News */
+.post-box textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.feed-posts .post {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+.post-actions span {
+  margin-right: 15px;
+  cursor: pointer;
+  color: #003366;
+}
+
+.news-item {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-left: 5px solid #003366;
+  border-radius: 8px;
 }
