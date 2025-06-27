@@ -1,0 +1,159 @@
+/* =============================
+   KeNHA Connect - Admin Panel CSS
+   File: public/css/admin.css
+   ============================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a {
+    color: #005baa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.navbar {
+    background-color: #005baa;
+    padding: 1rem;
+    text-align: center;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+h1, h2 {
+    text-align: center;
+    color: #005baa;
+    margin-bottom: 1rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+input, select, textarea {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    background-color: #005baa;
+    color: white;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #003e7e;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th {
+    background-color: #005baa;
+    color: white;
+    text-align: left;
+    padding: 0.75rem;
+}
+
+td {
+    padding: 0.75rem;
+    vertical-align: top;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actions a {
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    background-color: #005baa;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.actions a:hover {
+    background-color: #003e7e;
+}
+
+.footer {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+    padding: 1rem;
+}
+
+/* =============== Responsive =============== */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        margin: 20px 10px;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    th {
+        display: none;
+    }
+
+    td {
+        position: relative;
+        padding-left: 50%;
+        margin-bottom: 1rem;
+    }
+
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 45%;
+        padding-left: 1rem;
+        font-weight: bold;
+    }
+}

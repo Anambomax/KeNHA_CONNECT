@@ -11,23 +11,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if ($result && $admin = $result->fetch_assoc()) {
+    if ($result && $admin = $result->fetch_assoc()){
+
         if (password_verify($password, $admin['password'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_name'] = $admin['full_name'];
-            header("Location: dashboard.php");
-            exit();
+            // ✅ Show success message before redirecting
+            $success = "Login successful! Redirecting to dashboard...";
+            echo "<script>
+                    setTimeout(function() {
+                        window.location = 'dashboard.php';
+                    }, 2000);
+                  </script>";
         } else {
-            $error = "Invalid password.";
+            $error = "Wrong email or password.";
         }
     } else {
-        $error = "Admin not found.";
+        $error = "Wrong email or password.";
     }
 }
 ?>
-<form method="POST">
-    <input type="email" name="email" placeholder="Email" required><br>
-    <input type="password" name="password" placeholder="Password" required><br>
-    <button type="submit">Login</button>
-</form>
-<?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login - KeNHA Connect</title>
+    <link rel="stylesheet" href="../public/css/admin.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 2rem 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            color: #005baa;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .login-container input {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .login-container button {
+            background-color: #005baa;
+            color: white;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background-color: #003e7e;
+        }
+
+        .error {
+            color: red;
+            margin-top: 1rem;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Admin Login</h2>
+        <form method="POST">
+             <input type="email" name="email" placeholder="Email" required autocomplete="off">
+            <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
+            <button type="submit">Login</button>
+        </form>
+        <?php if (!empty($error)): ?>
+    <p id="error-message" class="error"><?= $error ?></p>
+<?php endif; ?>
+
+        <div class="footer">© <?= date('Y') ?> KeNHA Connect</div>
+    </div>
+    <script>
+    setTimeout(() => {
+        const msg = document.getElementById('error-message');
+        if (msg) msg.style.display = 'none';
+    }, 2000); // 2000 milliseconds = 2 seconds
+</script>
+
+</body>
+</html>

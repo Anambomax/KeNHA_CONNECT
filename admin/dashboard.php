@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="../public/css/admin.css">
 <?php
 session_start();
 if (!isset($_SESSION['admin_id'])) {
