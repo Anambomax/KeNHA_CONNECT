@@ -1,8 +1,11 @@
 body.kenha-bg {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: url('../uploads/background.jpg') no-repeat center center fixed;
+  background-image: url('../uploads/background.jpg');
+  background-repeat: no-repeat;
   background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 .login-wrapper {
@@ -22,7 +25,8 @@ body.kenha-bg {
 }
 
 .logo {
-  width: 110px;
+  width: 100px;
+  height: auto;
   margin-bottom: 10px;
 }
 
@@ -77,8 +81,6 @@ body.kenha-bg {
   text-decoration: none;
 }
 
-.support {
-  font-size: 12px;
-  color: #444;
+.register-link {
   margin-top: 10px;
 }

@@ -16,7 +16,9 @@ if (isset($_SESSION['user_id'])) {
 <body class="kenha-bg">
   <div class="login-wrapper">
     <form action="../api/login.php" method="POST" class="login-box">
+      <!-- LOGO -->
       <img src="uploads/kenha-logo.png" alt="KeNHA Logo" class="logo">
+      
       <h2>KENHA CONNECT</h2>
 
       <input type="text" name="username" placeholder="User Name" required>
@@ -35,11 +37,9 @@ if (isset($_SESSION['user_id'])) {
       <button type="submit" class="btn">Sign In</button>
 
       <div class="extra-links">
-        <a href="#">I forgot my password</a><br>
-        <a href="register.php">Register with E-Citizen</a>
+        <a href="#">Forgot password?</a>
+        <p class="register-link">Don't have an account? <a href="register.php">Register here</a></p>
       </div>
-
-      <p class="support">For Enquiries: <a href="mailto:kenhapermits@kenha.co.ke">kenhapermits@kenha.co.ke</a></p>
     </form>
   </div>
 </body>
