@@ -1,41 +1,61 @@
 <?php
-require 'config.php';
+session_start();
+require_once 'config.php';
 
-$data = json_decode(file_get_contents("php://input"), true);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve and sanitize POST data
+    $full_name = $_POST['full_name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $county = $_POST['county'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
 
-if (
-    !isset($data['full_name'], $data['email'], $data['phone'],
-    $data['county'], $data['password'], $data['confirm_password'])
-) {
-    http_response_code(400);
-    echo json_encode(["error" => "All fields are required."]);
-    exit;
+    // Validate fields
+    if (!$full_name || !$email || !$phone || !$county || !$password || !$confirm) {
+        die("All fields are required.");
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        die("Invalid email format.");
+    }
+
+    if (!preg_match('/^07[0-9]{8}$/', $phone)) {
+        die("Phone number must start with 07 and be 10 digits.");
+    }
+
+    if ($password !== $confirm) {
+        die("Passwords do not match.");
+    }
+
+    // Check for existing email
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email");
+    $stmt->execute(['email' => $email]);
+    if ($stmt->rowCount() > 0) {
+        die("Email already registered.");
+    }
+
+    // Hash password
+    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+    // Insert new user
+    $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, county, password) 
+                            VALUES (:full_name, :email, :phone, :county, :password)");
+    $stmt->execute([
+        'full_name' => $full_name,
+        'email' => $email,
+        'phone' => $phone,
+        'county' => $county,
+        'password' => $hashed_password
+    ]);
+
+    // Set session and redirect
+    $_SESSION['user_id'] = $conn->lastInsertId();
+    $_SESSION['email'] = $email;
+
+    header("Location: ../public/dashboard.php");
+    exit();
+} else {
+    die("Invalid request method.");
 }
-
-$full_name = trim($data['full_name']);
-$email = filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL);
-$phone = trim($data['phone']);
-$county = trim($data['county']);
-$password = $data['password'];
-$confirm_password = $data['confirm_password'];
-
-if (!$email) {
-    echo json_encode(["error" => "Invalid email format."]);
-    exit;
-}
-
-if ($password !== $confirm_password || strlen($password) < 8) {
-    echo json_encode(["error" => "Passwords must match and be at least 8 characters long."]);
-    exit;
-}
-
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-try {
-    $stmt = $pdo->prepare("INSERT INTO users (full_name, email, phone, county, password) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$full_name, $email, $phone, $county, $hashedPassword]);
-
-    echo json_encode(["success" => "Account created successfully."]);
-} catch (PDOException $e) {
-    echo json_encode(["error" => "Email already exists or server error."]);
-}
+?>

@@ -1,13 +1,15 @@
+/* ===== Global Body with Background ===== */
 body.kenha-bg {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background-image: url('../uploads/background.jpg');
+  background-image: url('/kenha-connect/public/uploads/background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
 }
 
+/* ===== Wrapper to Center Login/Register Forms ===== */
 .login-wrapper {
   height: 100vh;
   display: flex;
@@ -15,6 +17,7 @@ body.kenha-bg {
   align-items: center;
 }
 
+/* ===== Login/Register Box ===== */
 .login-box {
   background: rgba(255, 255, 255, 0.97);
   padding: 30px;
@@ -24,34 +27,54 @@ body.kenha-bg {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
+/* ===== Logo ===== */
 .logo {
   width: 100px;
   height: auto;
   margin-bottom: 10px;
 }
 
+/* ===== Main Heading ===== */
 .login-box h2 {
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   font-weight: 600;
   color: #222;
 }
 
+/* ===== Subtitle (for Register Page) ===== */
+.subtitle {
+  font-size: 15px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+/* ===== Form Inputs and Select Dropdowns ===== */
 .login-box input[type="text"],
-.login-box input[type="password"] {
+.login-box input[type="password"],
+.login-box input[type="email"],
+.login-box input[type="tel"],
+.login-box select {
+  display: block;
   width: 100%;
   padding: 10px;
   margin: 12px 0;
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 15px;
+  background-color: white;
+  box-sizing: border-box;
+  appearance: none;
 }
 
+/* ===== Captcha and Remember Me Sections ===== */
 .captcha-box,
 .remember-me {
   display: flex;
   align-items: center;
   margin: 10px 0;
   font-size: 14px;
+  justify-content: flex-start;
 }
 
 .captcha-box input,
@@ -59,6 +82,7 @@ body.kenha-bg {
   margin-right: 8px;
 }
 
+/* ===== Submit Button ===== */
 .btn {
   width: 100%;
   padding: 10px;
@@ -71,6 +95,7 @@ body.kenha-bg {
   margin-top: 15px;
 }
 
+/* ===== Links Under Form ===== */
 .extra-links {
   margin-top: 15px;
   font-size: 14px;
@@ -83,4 +108,113 @@ body.kenha-bg {
 
 .register-link {
   margin-top: 10px;
+}
+
+/* ================================================= */
+/* ===== Dashboard Layout Styling ===== */
+/* ================================================= */
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 240px;
+  background: rgba(255, 255, 255, 0.97);
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.sidebar-logo {
+  width: 70px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #007BFF;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav li {
+  margin: 15px 0;
+}
+
+.sidebar-nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.sidebar-nav a:hover {
+  color: #007BFF;
+}
+
+/* ===== Main Dashboard Area ===== */
+.dashboard-main {
+  flex-grow: 1;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.95);
+  overflow-y: auto;
+}
+
+.welcome-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.welcome-box h3 {
+  margin: 0 0 10px;
+  color: #222;
+}
+
+.card-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1;
+  min-width: 200px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ===== Responsive Design (Optional) ===== */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .dashboard-main {
+    padding: 20px;
+  }
+
+  .card-grid {
+    flex-direction: column;
+  }
 }
