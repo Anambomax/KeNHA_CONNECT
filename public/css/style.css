@@ -1,92 +1,86 @@
-/* General */
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #ffffff;
-    margin: 0;
-    padding: 0;
-    color: #222;
+body.kenha-bg {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-image: url('../uploads/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-/* Centered Container with Floating Effect */
-.container {
-    width: 100%;
-    max-width: 450px;
-    margin: 80px auto;
-    padding: 30px 25px;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    border-top: 8px solid #FFD700;
-    animation: floatIn 0.6s ease-in-out;
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Floating Animation */
-@keyframes floatIn {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.login-box {
+  background: rgba(255, 255, 255, 0.97);
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  width: 330px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-h2 {
-    text-align: center;
-    color: #000;
-    font-size: 26px;
-    margin-bottom: 25px;
+.logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 10px;
 }
 
-.brand {
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    color: #FFD700;
-    text-shadow: 1px 1px 0 #000;
-    margin-bottom: 10px;
-    letter-spacing: 2px;
+.login-box h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+  color: #222;
 }
 
-input, select {
-    width: 100%;
-    margin-bottom: 15px;
-    padding: 12px 10px;
-    font-size: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fdfdfd;
+.login-box input[type="text"],
+.login-box input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    background: #FFD700;
-    border: none;
-    color: #000;
-    font-weight: bold;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
+.captcha-box,
+.remember-me {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 14px;
 }
 
-button:hover {
-    background: #000;
-    color: #fff;
+.captcha-box input,
+.remember-me input {
+  margin-right: 8px;
 }
 
-a {
-    color: #FFD700;
-    text-decoration: none;
+.btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
 }
 
-a:hover {
-    text-decoration: underline;
-    color: #000;
+.extra-links {
+  margin-top: 15px;
+  font-size: 14px;
 }
 
-p {
-    text-align: center;
+.extra-links a {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.register-link {
+  margin-top: 10px;
 }
