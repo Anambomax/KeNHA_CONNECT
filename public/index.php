@@ -1,8 +1,8 @@
 <?php
 session_start();
-if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
-    exit();
+if (isset($_SESSION['email'])) {
+  header("Location: dashboard.php");
+  exit();
 }
 ?>
 
@@ -10,25 +10,23 @@ if (isset($_SESSION['user_id'])) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Login - KENHA CONNECT</title>
+  <title>Login - KeNHA Connect</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="kenha-bg">
   <div class="login-wrapper">
-    <form action="../api/login.php" method="POST" class="login-box">
-      <img src="uploads/kenha-logo.png" alt="KeNHA Logo" class="logo">
-      <h2>KENHA CONNECT</h2>
-      <p class="subtitle">Login to your account</p>
-
-      <input type="email" name="email" placeholder="Email Address" required>
-      <input type="password" name="password" placeholder="Password" required>
-
-      <button type="submit" class="btn">Login</button>
-
+    <div class="login-box">
+      <img src="uploads/kenha-logo.png" class="logo" alt="KeNHA Logo">
+      <h2 class="subtitle">KENHA CONNECT</h2>
+      <form action="../api/login.php" method="POST">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button class="btn" type="submit">Login</button>
+      </form>
       <div class="extra-links">
-        <p>Don't have an account? <a href="register.php">Register here</a></p>
+        <p>Don't have an account? <a href="register.php">Register</a></p>
       </div>
-    </form>
+    </div>
   </div>
 </body>
 </html>
