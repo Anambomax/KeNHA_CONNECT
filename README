@@ -1,4 +1,60 @@
 ##KeNHA_Connect
  KeNHA faces delays and inefficiencies in handling public feedback due to lack of a centralized and transparent system.
+
  KeNHA_Connect solves this by enabling structured submission, assignment, and tracking of road-related incidents.
- It is a web-based platform for citizens to report issues and for staff to manage and respond with accountability.
+
+ It is a web-based platform for citizens to report issues and for Kenha staff to manage and respond with accountability.
+
+ 📁 Project Structure
+
+ kenha-connect/
+├── public/ # User-facing UI
+│ ├── css/ # Styling
+│ ├── js/ # JavaScript (e.g., Axios)
+│ ├── uploads/ # Logo, background, and user uploads
+│ ├── index.php # Login page
+│ ├── register.php # Registration page
+│ ├── dashboard.php # Main user dashboard
+│ ├── report.php # Incident submission form
+│ ├── profile.php # User profile (coming soon)
+│ └── public_channel.php # View public updates (coming soon)
+
+├── api/ # Backend logic (PHP API)
+│ ├── config.php # Database connection
+│ ├── login.php # User login handler
+│ ├── register.php # User registration logic
+│ ├── logout.php # Session logout
+│ ├── add_incident.php # Report submission API (coming soon)
+│ ├── get_incidents.php # Fetch incidents (coming soon)
+│ ├── get_user.php # Fetch user details
+│ └── public_channel.php # Public feed logic (planned)
+
+├── admin/ # KeNHA Admin Dashboard (Phase 2)
+│ ├── login.php
+│ ├── dashboard.php
+│ ├── users.php
+│ ├── incidents.php
+│ ├── resolved_issues.php
+│ └── .htaccess # Access control
+
+└── db.sql # MySQL database structure
+
+
+ ✅ Features (Completed So Far)
+
+- ✅ User registration with validation and county dropdown  
+- ✅ Secure login with session management  
+- ✅ KeNHA-themed UI with logo, background, and responsive design  
+- ✅ Session-protected dashboard  
+- ✅ Clean backend logic using PDO and password hashing  
+- ✅ Organized folder structure with separation of concerns
+
+
+
+🛠️ Setup Instructions
+
+ Requirements
+- XAMPP or any local PHP server
+- PHP 7.4+
+- MySQL or MariaDB
+- Git (optional)
