@@ -1,120 +1,175 @@
 <?php
-session_start();
-if (!isset($_SESSION['email'])) {
-    header("Location: index.php");
-    exit();
-}
+require_once '../api/session.php';
+require_once '../api/config.php';
+
+// Fetch feedbacks from DB
+$stmt = $conn->prepare("SELECT * FROM feedback ORDER BY created_at DESC");
+$stmt->execute();
+$feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KeNHA Connect – Feed</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <meta charset="UTF-8">
+  <title>KeNHA Connect - Feed</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #003366;
+      color: white;
+      position: fixed;
+      height: 100vh;
+      padding-top: 20px;
+    }
+
+    .sidebar .logo-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .kenha-logo {
+      width: 80px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .nav-menu ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .nav-menu li {
+      margin: 10px 20px;
+      background-color: #004080;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+
+    .nav-menu li:hover,
+    .nav-menu .active {
+      background-color: #0059b3;
+    }
+
+    .nav-menu a {
+      color: white;
+      text-decoration: none;
+      display: block;
+    }
+
+    .main-content {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .post-tags span {
+      background: #e0f0ff;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-right: 8px;
+      color: #003366;
+      font-weight: 500;
+    }
+
+    .post-image {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .floating-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #003366;
+      color: white;
+      font-size: 28px;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .floating-button {
+        right: 20px;
+        bottom: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="dashboard-container">
-    <div class="sidebar">
-      <div class="nav-menu">
-        <img src="uploads/kenha-logo.png" alt="KeNHA Logo" class="logo" />
-        <a href="dashboard.php">🏠 Home</a>
-        <a class="active" href="feed.php">📰 Feed</a>
-        <a href="news.php">📊 News</a>
-        <a href="logout.php" class="logout">🚪 Logout</a>
-      </div>
+<div class="dashboard-container">
+  <div class="sidebar">
+    <div class="logo-container">
+      <img src="uploads/kenha-logo.png" class="kenha-logo" alt="KeNHA Logo">
+      <h3>KeNHA CONNECT</h3>
     </div>
-
-    <div class="main-content">
-      <h2>📢 Community Feed</h2>
-      <div id="feed"></div>
+    <div class="nav-menu">
+      <ul>
+        <li><a href="dashboard.php">🏠 Home</a></li>
+        <li class="active"><a href="feed.php">📰 Feed</a></li>
+        <li><a href="news.php">📈 News</a></li>
+        <li><a href="logout.php">🚪 Logout</a></li>
+      </ul>
     </div>
-
-    <!-- Floating Button -->
-    <a href="post.php" class="floating-button">＋</a>
   </div>
 
-  <script>
-    // Load all posts
-    function loadFeed() {
-      axios.get('../api/get_feed.php')
-        .then(response => {
-          const feed = document.getElementById('feed');
-          feed.innerHTML = '';
-          if (response.data.status === 'success') {
-            response.data.data.forEach(post => {
-              const postDiv = document.createElement('div');
-              postDiv.className = 'post-card';
-              postDiv.innerHTML = `
-                <h3>${post.full_name} (${post.county})</h3>
-                <small>📅 ${new Date(post.created_at).toLocaleString()}</small>
-                <p><strong>Type:</strong> ${post.type} – ${post.category}</p>
-                <p>${post.description}</p>
-                ${post.image_path ? `<img src="${post.image_path}" class="post-image" />` : ''}
-                
-                <div class="comments-section" id="comments-${post.id}">
-                  <div class="existing-comments"></div>
-                  <form class="comment-form" data-post-id="${post.id}">
-                    <input type="text" name="comment" placeholder="Write a comment..." required />
-                    <button type="submit">Post</button>
-                  </form>
-                </div>
-              `;
-              feed.appendChild(postDiv);
-              loadComments(post.id);
-            });
-          }
-        })
-        .catch(err => console.error('Feed load error:', err));
-    }
+  <div class="main-content">
+    <h2>📰 Feed</h2>
+    <?php if (!empty($feedbacks)): ?>
+      <?php foreach ($feedbacks as $row): ?>
+        <div class="post-card">
+          <strong><?= htmlspecialchars($row['user_name']) ?> (<?= htmlspecialchars($row['location']) ?>)</strong><br>
+          <small><?= date('M d, Y H:i', strtotime($row['created_at'])) ?></small>
+          <div class="post-tags">
+            <span><?= ucfirst($row['feedback_category']) ?></span>
+            <span><?= ucfirst($row['feedback_subcategory']) ?></span>
+            <?php if ($row['details']) echo "<span>" . ucfirst($row['details']) . "</span>"; ?>
+          </div>
+          <p><?= nl2br(htmlspecialchars($row['description'])) ?></p>
+          <?php if ($row['photo']): ?>
+            <img src="uploads/<?= htmlspecialchars($row['photo']) ?>" class="post-image" alt="Photo">
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p>No feedback has been posted yet.</p>
+    <?php endif; ?>
+  </div>
 
-    // Load comments under a post
-    function loadComments(postId) {
-      axios.get(`../api/get_comments.php?post=${postId}`)
-        .then(res => {
-          const container = document.querySelector(`#comments-${postId} .existing-comments`);
-          container.innerHTML = '';
-          if (res.data.status === 'success') {
-            res.data.data.forEach(c => {
-              const html = `
-                <div class="comment">
-                  <strong>${c.full_name}</strong>: ${c.comment}<br>
-                  <small>${new Date(c.created_at).toLocaleString()}</small>
-                </div>`;
-              container.innerHTML += html;
-            });
-          }
-        });
-    }
-
-    // Handle comment submit
-    document.addEventListener('submit', function(e) {
-      if (e.target.matches('.comment-form')) {
-        e.preventDefault();
-        const form = e.target;
-        const postId = form.getAttribute('data-post-id');
-        const comment = form.comment.value.trim();
-        if (!comment) return;
-
-        axios.post('../api/add_comment.php', {
-          post: postId,
-          comment: comment
-        })
-        .then(res => {
-          if (res.data.status === 'success') {
-            form.comment.value = '';
-            loadComments(postId);
-          } else {
-            alert(res.data.message);
-          }
-        });
-      }
-    });
-
-    // Initial load
-    loadFeed();
-  </script>
+  <a href="submit_feedback.php" class="floating-button" title="Submit Feedback">＋</a>
+</div>
 </body>
 </html>
