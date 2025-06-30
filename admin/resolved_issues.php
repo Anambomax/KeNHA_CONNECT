@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="../public/css/admin.css">
 <?php
 include '../api/config.php';
 session_start();
