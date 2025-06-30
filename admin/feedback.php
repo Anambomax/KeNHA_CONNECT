@@ -13,10 +13,14 @@ $query = "
     JOIN users u ON i.user_id = u.id
 ";
 
-$stmt = $pdo->query($query);
-$incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $conn->query($query);
+$feedback = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<h2>All Incidents</h2>
+<!DOCTYPE html>
+<html>
+<head><title>Feedback</title></head>
+<body>
+<h2>All Feedback</h2>
 <table border="1">
     <tr>
         <th>ID</th>
@@ -26,7 +30,7 @@ $incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <th>Description</th>
         <th>Status</th>
     </tr>
-    <?php foreach ($incidents as $row): ?>
+    <?php foreach ($feedback as $row): ?>
     <tr>
         <td><?= $row['id'] ?></td>
         <td><?= $row['reporter'] ?></td>
@@ -37,5 +41,6 @@ $incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </tr>
     <?php endforeach; ?>
 </table>
-
 <a href="dashboard.php">Back to Dashboard</a>
+</body>
+</html>

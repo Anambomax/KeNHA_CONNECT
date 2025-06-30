@@ -1,5 +1,5 @@
 /* =============================
-   KeNHA Connect - Admin Panel CSS
+   KeNHA Connect - Admin Panel (Admin Only)
    File: public/css/admin.css
    ============================= */
 
@@ -11,9 +11,8 @@
 
 body {
     font-family: 'Segoe UI', sans-serif;
-    background-color: #f4f6f8;
+    background: #f4f6f8;
     color: #333;
-    line-height: 1.6;
     min-height: 100vh;
 }
 
@@ -21,7 +20,6 @@ a {
     color: #005baa;
     text-decoration: none;
 }
-
 a:hover {
     text-decoration: underline;
 }
@@ -29,9 +27,9 @@ a:hover {
 .navbar {
     background-color: #005baa;
     padding: 1rem;
-    text-align: center;
     color: white;
-    font-size: 1.3rem;
+    text-align: center;
+    font-size: 1.5rem;
     font-weight: bold;
 }
 
@@ -39,15 +37,15 @@ a:hover {
     max-width: 960px;
     margin: 40px auto;
     padding: 2rem;
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
     text-align: center;
     color: #005baa;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 form {
@@ -74,7 +72,6 @@ button {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
 button:hover {
     background-color: #003e7e;
 }
@@ -82,20 +79,18 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
 }
-
 table, th, td {
     border: 1px solid #ccc;
 }
-
 th {
     background-color: #005baa;
     color: white;
-    text-align: left;
     padding: 0.75rem;
+    text-align: left;
 }
-
 td {
     padding: 0.75rem;
     vertical-align: top;
@@ -104,18 +99,26 @@ td {
 .actions {
     display: flex;
     gap: 0.5rem;
+    justify-content: center;
 }
-
 .actions a {
     padding: 0.4rem 0.8rem;
-    border-radius: 5px;
     background-color: #005baa;
     color: white;
+    border-radius: 5px;
     font-size: 0.9rem;
 }
-
 .actions a:hover {
     background-color: #003e7e;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}
+.success {
+    color: green;
+    text-align: center;
 }
 
 .footer {
@@ -126,7 +129,7 @@ td {
     padding: 1rem;
 }
 
-/* =============== Responsive =============== */
+/* Responsive Admin Table */
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
