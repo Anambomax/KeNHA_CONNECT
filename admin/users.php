@@ -7,13 +7,22 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-// Use PDO instead of $conn
-$stmt = $pdo->query("SELECT * FROM users");
+$stmt = $conn->query("SELECT * FROM users");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+<!DOCTYPE html>
+<html>
+<head><title>All Users</title></head>
+<body>
 <h2>All Users</h2>
 <table border="1">
-    <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Department</th></tr>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Department</th>
+    </tr>
     <?php foreach ($users as $row): ?>
     <tr>
         <td><?= $row['id'] ?></td>
@@ -25,3 +34,5 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endforeach; ?>
 </table>
 <a href="dashboard.php">Back to Dashboard</a>
+</body>
+</html>

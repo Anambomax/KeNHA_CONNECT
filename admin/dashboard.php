@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="../public/css/admin.css">
 <?php
 session_start();
 if (!isset($_SESSION['admin_id'])) {
@@ -6,10 +5,16 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 ?>
-<h1>Welcome, <?= $_SESSION['admin_name'] ?></h1>
-<ul>
-    <li><a href="users.php">Manage Users</a></li>
-    <li><a href="incidents.php">View All Incidents</a></li>
-    <li><a href="resolved_issues.php">Resolved Issues</a></li>
-    <li><a href="logout.php">Logout</a></li>
-</ul>
+<!DOCTYPE html>
+<html>
+<head><title>Admin Dashboard</title></head>
+<body>
+    <h1>Welcome, <?= $_SESSION['admin_name'] ?></h1>
+    <ul>
+        <li><a href="users.php">Manage Users</a></li>
+        <li><a href="feedback.php">View Feedback</a></li>
+        <li><a href="resolved_issues.php">Resolved Feedback</a></li>
+        <li><a href="logout.php">Logout</a></li>
+    </ul>
+</body>
+</html>

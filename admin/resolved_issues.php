@@ -14,10 +14,14 @@ $query = "
     WHERE i.status = 'closed'
 ";
 
-$stmt = $pdo->query($query);
+$stmt = $conn->query($query);
 $resolved = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<h2>Resolved Incidents</h2>
+<!DOCTYPE html>
+<html>
+<head><title>Resolved Feedback</title></head>
+<body>
+<h2>Resolved Feedback</h2>
 <table border="1">
     <tr>
         <th>ID</th>
@@ -34,5 +38,6 @@ $resolved = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </tr>
     <?php endforeach; ?>
 </table>
-
 <a href="dashboard.php">Back to Dashboard</a>
+</body>
+</html>
