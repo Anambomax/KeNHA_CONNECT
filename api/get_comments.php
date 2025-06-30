@@ -1,21 +1,17 @@
 <?php
-require 'config.php';
+require_once 'config.php';
+
+if (!isset($_GET['feedback_id'])) {
+    http_response_code(400);
+    echo json_encode(["error" => "Missing feedback ID"]);
+    exit();
+}
+
+$feedback_id = intval($_GET['feedback_id']);
+
+$stmt = $conn->prepare("SELECT user, comment, created_at FROM comments WHERE feedback = ? ORDER BY created_at ASC");
+$stmt->execute([$feedback_id]);
+$comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 header('Content-Type: application/json');
-
-$postId = $_GET['post'] ?? null;
-
-if (!$postId) {
-    echo json_encode(['status' => 'error', 'message' => 'Post ID is required']);
-    exit;
-}
-
-try {
-    $stmt = $conn->prepare("SELECT full_name, comment, created_at FROM comments WHERE post = ? ORDER BY created_at ASC");
-    $stmt->execute([$postId]);
-    $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode(['status' => 'success', 'data' => $comments]);
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-}
-?>
+echo json_encode($comments);

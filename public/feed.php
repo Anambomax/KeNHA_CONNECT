@@ -1,12 +1,15 @@
 <?php
-require_once '../api/session.php'; // Checks session
+require_once '../api/session.php';
 require_once '../api/config.php';
 
-// Ensure session has necessary data
 $user_id = $_SESSION['user_id'] ?? null;
 
-// Fetch feedbacks from DB
-$stmt = $conn->prepare("SELECT * FROM feedback ORDER BY created_at DESC");
+// Fetch feedbacks with comments and reaction counts
+$sql = "SELECT f.*, 
+            (SELECT COUNT(*) FROM reactions WHERE feedback = f.id AND type = 'like') AS likes,
+            (SELECT COUNT(*) FROM reactions WHERE feedback = f.id AND type = 'dislike') AS dislikes
+        FROM feedback f ORDER BY created_at DESC";
+$stmt = $conn->prepare($sql);
 $stmt->execute();
 $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -14,176 +17,213 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>KeNHA Connect - Feed</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
+    /* Styles from earlier are retained */
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f2f2f2;
-    }
-
-    .dashboard-container {
-      display: flex;
-      min-height: 100vh;
+      margin: 0;
+      background: #f4f4f4;
     }
 
     .sidebar {
       width: 240px;
       background-color: #003366;
-      color: white;
       position: fixed;
       height: 100vh;
-      padding-top: 20px;
-      z-index: 999;
-    }
-
-    .sidebar .logo-container {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .kenha-logo {
-      width: 80px;
-      height: auto;
-      margin-bottom: 10px;
-    }
-
-    .nav-menu ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .nav-menu li {
-      margin: 10px 20px;
-      background-color: #004080;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      transition: background-color 0.3s;
-    }
-
-    .nav-menu li:hover,
-    .nav-menu .active {
-      background-color: #0059b3;
-    }
-
-    .nav-menu a {
       color: white;
-      text-decoration: none;
-      display: block;
+      padding-top: 20px;
     }
 
     .main-content {
       margin-left: 260px;
       padding: 30px;
-      flex-grow: 1;
     }
 
     .post-card {
       background: white;
-      border-radius: 12px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
     .post-tags span {
       background: #e0f0ff;
-      padding: 5px 12px;
       border-radius: 20px;
+      padding: 5px 10px;
       margin-right: 8px;
+      display: inline-block;
+      font-size: 12px;
       color: #003366;
-      font-weight: 500;
     }
 
     .post-image {
       max-width: 100%;
-      border-radius: 8px;
       margin-top: 10px;
+      border-radius: 8px;
+    }
+
+    .reaction-bar {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .reaction-bar span {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .comments-section {
+      margin-top: 15px;
+    }
+
+    .comments-section textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    .comments-section button {
+      margin-top: 5px;
+      padding: 6px 12px;
+      background: #003366;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .comment {
+      margin-top: 10px;
+      padding-left: 10px;
+      border-left: 2px solid #eee;
     }
 
     .floating-button {
       position: fixed;
       bottom: 30px;
       right: 30px;
-      background-color: #003366;
+      background: #003366;
       color: white;
-      font-size: 28px;
-      border: none;
       border-radius: 50%;
+      font-size: 24px;
       width: 60px;
       height: 60px;
-      line-height: 60px;
-      text-align: center;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-decoration: none;
-    }
-
-    @media (max-width: 768px) {
-      .main-content {
-        margin-left: 0;
-        padding: 15px;
-      }
-
-      .sidebar {
-        display: none;
-      }
-
-      .floating-button {
-        right: 20px;
-        bottom: 20px;
-      }
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
-<div class="dashboard-container">
-  <div class="sidebar">
-    <div class="logo-container">
-      <img src="uploads/kenha-logo.png" class="kenha-logo" alt="KeNHA Logo">
-      <h3>KeNHA CONNECT</h3>
-    </div>
-    <div class="nav-menu">
-      <ul>
-        <li><a href="dashboard.php">🏠 Home</a></li>
-        <li class="active"><a href="feed.php">📰 Feed</a></li>
-        <li><a href="news.php">📈 News</a></li>
-        <li><a href="logout.php">🚪 Logout</a></li>
-      </ul>
-    </div>
+<div class="sidebar">
+  <div style="text-align:center">
+    <img src="uploads/kenha-logo.png" width="80" alt="Logo" />
+    <h3>KeNHA CONNECT</h3>
   </div>
-
-  <div class="main-content">
-    <h2>📰 Feed</h2>
-
-    <?php if (!empty($feedbacks)): ?>
-      <?php foreach ($feedbacks as $row): ?>
-        <div class="post-card">
-          <strong><?= htmlspecialchars($row['user_name'] ?? 'Anonymous') ?> (<?= htmlspecialchars($row['location'] ?? 'Unknown') ?>)</strong><br>
-          <small><?= date('M d, Y H:i', strtotime($row['created_at'])) ?></small>
-          <div class="post-tags">
-            <span><?= ucfirst($row['feedback_category']) ?></span>
-            <span><?= ucfirst($row['feedback_subcategory']) ?></span>
-            <?php if (!empty($row['details'])): ?>
-              <span><?= ucfirst($row['details']) ?></span>
-            <?php endif; ?>
-          </div>
-          <p><?= nl2br(htmlspecialchars($row['description'])) ?></p>
-          <?php if (!empty($row['photo'])): ?>
-            <img src="uploads/<?= htmlspecialchars($row['photo']) ?>" class="post-image" alt="Photo">
-          <?php endif; ?>
-        </div>
-      <?php endforeach; ?>
-    <?php else: ?>
-      <p>No feedback has been posted yet.</p>
-    <?php endif; ?>
-  </div>
-
-  <a href="submit_feedback.php" class="floating-button" title="Submit Feedback">＋</a>
+  <ul class="nav-menu" style="list-style:none; padding:0">
+    <li><a href="dashboard.php" style="display:block; padding:10px; color:white;">🏠 Home</a></li>
+    <li style="background:#0059b3;"><a href="feed.php" style="display:block; padding:10px; color:white;">📰 Feed</a></li>
+    <li><a href="news.php" style="display:block; padding:10px; color:white;">📊 News</a></li>
+    <li><a href="logout.php" style="display:block; padding:10px; color:white;">🚪 Logout</a></li>
+  </ul>
 </div>
+
+<div class="main-content">
+  <h2>🧵 Public Feed</h2>
+
+  <?php foreach ($feedbacks as $row): ?>
+    <div class="post-card" id="post-<?= $row['id'] ?>">
+      <strong><?= htmlspecialchars($row['user_name']) ?> (<?= htmlspecialchars($row['location']) ?>)</strong><br>
+      <small><?= date('M d, Y H:i', strtotime($row['created_at'])) ?></small>
+      <div class="post-tags">
+        <span><?= htmlspecialchars($row['feedback_category']) ?></span>
+        <span><?= htmlspecialchars($row['feedback_subcategory']) ?></span>
+        <?php if (!empty($row['details'])): ?><span><?= htmlspecialchars($row['details']) ?></span><?php endif; ?>
+      </div>
+      <p><?= nl2br(htmlspecialchars($row['description'])) ?></p>
+      <?php if (!empty($row['photo'])): ?>
+        <img src="uploads/<?= htmlspecialchars($row['photo']) ?>" class="post-image" />
+      <?php endif; ?>
+
+      <!-- Reactions -->
+      <div class="reaction-bar">
+        <span onclick="react(<?= $row['id'] ?>, 'like')">👍 <b id="like-count-<?= $row['id'] ?>"><?= $row['likes'] ?></b></span>
+        <span onclick="react(<?= $row['id'] ?>, 'dislike')">👎 <b id="dislike-count-<?= $row['id'] ?>"><?= $row['dislikes'] ?></b></span>
+      </div>
+
+      <!-- Comments -->
+      <div class="comments-section" id="comments-<?= $row['id'] ?>">
+        <!-- Will be loaded by JS -->
+        <div class="comment-list"></div>
+        <textarea placeholder="Write a comment..." id="comment-input-<?= $row['id'] ?>"></textarea>
+        <button onclick="submitComment(<?= $row['id'] ?>)">Post Comment</button>
+      </div>
+    </div>
+  <?php endforeach; ?>
+</div>
+
+<a class="floating-button" href="submit_feedback.php">＋</a>
+
+<script>
+function submitComment(feedbackId) {
+  const textarea = document.getElementById('comment-input-' + feedbackId);
+  const comment = textarea.value.trim();
+  if (!comment) return;
+
+  fetch('../api/add_comment.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `feedback_id=${feedbackId}&comment=${encodeURIComponent(comment)}`
+  })
+  .then(res => res.text())
+  .then(() => {
+    textarea.value = '';
+    loadComments(feedbackId);
+  });
+}
+
+function react(feedbackId, type) {
+  fetch('../api/add_reaction.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `feedback_id=${feedbackId}&type=${type}`
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('like-count-' + feedbackId).textContent = data.likes;
+    document.getElementById('dislike-count-' + feedbackId).textContent = data.dislikes;
+  });
+}
+
+function loadComments(feedbackId) {
+  fetch(`../api/get_comments.php?feedback_id=${feedbackId}`)
+  .then(res => res.json())
+  .then(data => {
+    const container = document.querySelector(`#comments-${feedbackId} .comment-list`);
+    container.innerHTML = '';
+    data.forEach(c => {
+      const div = document.createElement('div');
+      div.classList.add('comment');
+      div.innerHTML = `<strong>${c.user}</strong><br><small>${c.created_at}</small><br>${c.comment}`;
+      container.appendChild(div);
+    });
+  });
+}
+
+// Load all comments initially
+<?php foreach ($feedbacks as $row): ?>
+  loadComments(<?= $row['id'] ?>);
+<?php endforeach; ?>
+</script>
 </body>
 </html>

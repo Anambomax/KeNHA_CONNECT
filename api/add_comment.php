@@ -1,35 +1,34 @@
 <?php
-require 'config.php';
+require_once 'config.php';
 session_start();
 
-header('Content-Type: application/json');
+if (!isset($_SESSION['email'])) {
+    http_response_code(403);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
-    exit;
+    http_response_code(405);
+    echo json_encode(["error" => "Invalid request method"]);
+    exit();
 }
 
-if (!isset($_SESSION['email'])) {
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
-    exit;
-}
-
-$full_name = $_SESSION['full_name'];
-$email = $_SESSION['email'];
-$post = $_POST['post'] ?? null;
+$feedback_id = $_POST['feedback_id'] ?? null;
 $comment = trim($_POST['comment'] ?? '');
+$user = $_SESSION['user_name'] ?? 'Anonymous';
 
-if (!$post || !$comment) {
-    echo json_encode(['status' => 'error', 'message' => 'Post ID and comment are required']);
-    exit;
+if (!$feedback_id || !$comment) {
+    http_response_code(400);
+    echo json_encode(["error" => "Missing required fields"]);
+    exit();
 }
 
-try {
-    $stmt = $conn->prepare("INSERT INTO comments (post, full_name, email, comment) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$post, $full_name, $email, $comment]);
+$stmt = $conn->prepare("INSERT INTO comments (feedback, user, comment) VALUES (?, ?, ?)");
+$success = $stmt->execute([$feedback_id, $user, $comment]);
 
-    echo json_encode(['status' => 'success', 'message' => 'Comment added']);
-} catch (PDOException $e) {
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+if ($success) {
+    echo json_encode(["success" => true]);
+} else {
+    echo json_encode(["error" => "Failed to save comment"]);
 }
-?>
