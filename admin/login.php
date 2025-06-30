@@ -108,9 +108,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-container">
         <h2>Admin Login</h2>
         <form method="POST">
-             <input type="email" name="email" placeholder="Email" required autocomplete="off">
-            <input type="password" name="password" placeholder="Password" required autocomplete="new-password">
-            <button type="submit">Login</button>
+            <form method="POST" novalidate>
+    <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        required
+        title="Please enter a valid email address (e.g. admin@example.com)"
+        autocomplete="off"
+    >
+
+    <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        required
+        title="Password must be 8+ characters, include special characters, letters, and numbers"
+        pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}"
+        autocomplete="new-password"
+    >
+
+    <button type="submit">Login</button>
+</form>
+
         </form>
         <?php if (!empty($error)): ?>
     <p id="error-message" class="error"><?= $error ?></p>
