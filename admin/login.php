@@ -6,32 +6,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND role = 'admin'");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = 'admin'");
+    $stmt->execute([$email]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($result && $admin = $result->fetch_assoc()){
-
-        if (password_verify($password, $admin['password'])) {
-            $_SESSION['admin_id'] = $admin['id'];
-            $_SESSION['admin_name'] = $admin['full_name'];
-            // ✅ Show success message before redirecting
-            $success = "Login successful! Redirecting to dashboard...";
-            echo "<script>
-                    setTimeout(function() {
-                        window.location = 'dashboard.php';
-                    }, 2000);
-                  </script>";
-        } else {
-            $error = "Wrong email or password.";
-        }
+    if ($admin && password_verify($password, $admin['password'])) {
+        $_SESSION['admin_id'] = $admin['id'];
+        $_SESSION['admin_name'] = $admin['full_name'];
+        $success = "Login successful! Redirecting to dashboard...";
+        echo "<script>
+                setTimeout(() => window.location = 'dashboard.php', 2000);
+              </script>";
     } else {
         $error = "Wrong email or password.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,6 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 1rem;
         }
 
+        .success {
+            color: green;
+            margin-top: 1rem;
+        }
+
         .footer {
             margin-top: 2rem;
             font-size: 0.9rem;
@@ -105,45 +100,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Admin Login</h2>
-        <form method="POST">
-            <form method="POST" novalidate>
+<div class="login-container">
+    <h2>Admin Login</h2>
+    <form method="POST" novalidate>
     <input
         type="email"
         name="email"
         placeholder="Email"
         required
+        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
         title="Please enter a valid email address (e.g. admin@example.com)"
         autocomplete="off"
     >
-
     <input
         type="password"
         name="password"
         placeholder="Password"
         required
-        title="Password must be 8+ characters, include special characters, letters, and numbers"
         pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}"
+        title="Password must be at least 8 characters, contain letters, numbers, and a special character"
         autocomplete="new-password"
     >
+    
+    <!-- Forgot Password link -->
+    <a href="forgot_password.php" style="font-size: 0.9rem; color: #005baa; text-decoration: none; margin-top: -0.5rem;">Forgot Password?</a>
 
     <button type="submit">Login</button>
 </form>
 
-        </form>
-        <?php if (!empty($error)): ?>
-    <p id="error-message" class="error"><?= $error ?></p>
-<?php endif; ?>
+    <?php if (!empty($error)): ?>
+        <p id="error-message" class="error"><?= $error ?></p>
+    <?php elseif (!empty($success)): ?>
+        <p class="success"><?= $success ?></p>
+    <?php endif; ?>
 
-        <div class="footer">© <?= date('Y') ?> KeNHA Connect</div>
-    </div>
-    <script>
+    <div class="footer">© <?= date('Y') ?> KeNHA Connect</div>
+</div>
+
+<script>
     setTimeout(() => {
         const msg = document.getElementById('error-message');
         if (msg) msg.style.display = 'none';
-    }, 2000); // 2000 milliseconds = 2 seconds
+    }, 2000);
 </script>
-
 </body>
 </html>
