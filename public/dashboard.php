@@ -7,6 +7,7 @@ if (!isset($_SESSION['email'])) {
 
 require_once '../api/config.php';
 
+// Get user info
 $email = $_SESSION['email'];
 $full_name = $phone = $county = '';
 
@@ -23,6 +24,15 @@ try {
   }
 } catch (PDOException $e) {
   die("Error fetching user info: " . $e->getMessage());
+}
+
+// Fetch feedback posts
+try {
+  $stmt = $conn->prepare("SELECT * FROM feedback ORDER BY created_at DESC");
+  $stmt->execute();
+  $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  $feedbacks = [];
 }
 ?>
 
@@ -95,6 +105,7 @@ try {
       flex: 1;
       padding: 30px;
       overflow-y: auto;
+      position: relative;
     }
 
     .tab-content {
@@ -122,6 +133,56 @@ try {
     .info-box ul {
       padding-left: 20px;
     }
+
+    .feedback-tags span {
+      background: #e0f0ff;
+      color: #003366;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-right: 8px;
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    .feedback-img {
+      margin-top: 10px;
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    .floating-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #003366;
+      color: white;
+      font-size: 28px;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .nav-menu li {
+        display: inline-block;
+      }
+    }
   </style>
 </head>
 <body>
@@ -143,13 +204,12 @@ try {
   <div class="main-content">
     <!-- HOME TAB -->
     <div id="home" class="tab-content active">
-      <h2 class="section-title">Welcome, <?php echo htmlspecialchars($full_name); ?>!</h2>
-
+      <h2 class="section-title">Welcome, <?= htmlspecialchars($full_name); ?>!</h2>
       <div class="info-box">
         <h3>📄 Your Profile Information</h3>
-        <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
-        <p><strong>Phone:</strong> <?php echo htmlspecialchars($phone); ?></p>
-        <p><strong>County:</strong> <?php echo htmlspecialchars($county); ?></p>
+        <p><strong>Email:</strong> <?= htmlspecialchars($email); ?></p>
+        <p><strong>Phone:</strong> <?= htmlspecialchars($phone); ?></p>
+        <p><strong>County:</strong> <?= htmlspecialchars($county); ?></p>
       </div>
 
       <div class="info-box">
@@ -176,7 +236,27 @@ try {
     <!-- FEED TAB -->
     <div id="feed" class="tab-content">
       <h2 class="section-title">🧵 Feed</h2>
-      <p>Coming soon: Post issues and interact with others.</p>
+      <?php if (!empty($feedbacks)): ?>
+        <?php foreach ($feedbacks as $row): ?>
+          <div class="info-box">
+            <strong><?= htmlspecialchars($row['user_name']) ?> (<?= htmlspecialchars($row['location']) ?>)</strong><br>
+            <small><?= date('M d, Y H:i', strtotime($row['created_at'])) ?></small>
+            <div class="feedback-tags">
+              <span><?= ucfirst($row['feedback_category']) ?></span>
+              <span><?= ucfirst($row['feedback_subcategory']) ?></span>
+              <?php if (!empty($row['details'])): ?>
+                <span><?= ucfirst($row['details']) ?></span>
+              <?php endif; ?>
+            </div>
+            <p><?= nl2br(htmlspecialchars($row['description'])) ?></p>
+            <?php if (!empty($row['photo'])): ?>
+              <img src="uploads/<?= htmlspecialchars($row['photo']) ?>" class="feedback-img" alt="Feedback Photo">
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <p>No feedback has been posted yet.</p>
+      <?php endif; ?>
     </div>
 
     <!-- NEWS TAB -->
@@ -186,6 +266,9 @@ try {
     </div>
   </div>
 </div>
+
+<!-- Floating Add Feedback Button -->
+<a href="submit_feedback.php" class="floating-button" title="Submit Feedback">＋</a>
 
 <!-- JS to switch tabs -->
 <script>

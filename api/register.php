@@ -1,61 +1,78 @@
 <?php
 session_start();
-require_once 'config.php';
+require 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Retrieve and sanitize POST data
-    $full_name = $_POST['full_name'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $phone = $_POST['phone'] ?? '';
-    $county = $_POST['county'] ?? '';
+    $full_name = trim($_POST['full_name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
     $password = $_POST['password'] ?? '';
-    $confirm = $_POST['confirm_password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    $county = trim($_POST['county'] ?? '');
 
-    // Validate fields
-    if (!$full_name || !$email || !$phone || !$county || !$password || !$confirm) {
-        die("All fields are required.");
+    // Validate required fields
+    if (empty($full_name) || empty($email) || empty($phone) || empty($password) || empty($confirm_password) || empty($county)) {
+        $_SESSION['register_error'] = "All fields are required.";
+        header("Location: ../public/register.php");
+        exit();
     }
 
+    // Email validation
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        die("Invalid email format.");
+        $_SESSION['register_error'] = "Invalid email address.";
+        header("Location: ../public/register.php");
+        exit();
     }
 
-    if (!preg_match('/^07[0-9]{8}$/', $phone)) {
-        die("Phone number must start with 07 and be 10 digits.");
+    // Phone validation
+    if (!preg_match("/^07\d{8}$/", $phone)) {
+        $_SESSION['register_error'] = "Phone must start with 07 and be 10 digits.";
+        header("Location: ../public/register.php");
+        exit();
     }
 
-    if ($password !== $confirm) {
-        die("Passwords do not match.");
+    // Password strength (minimum 6 characters only)
+    if (strlen($password) < 6) {
+        $_SESSION['register_error'] = "Password must be at least 6 characters long.";
+        header("Location: ../public/register.php");
+        exit();
     }
 
-    // Check for existing email
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = :email");
-    $stmt->execute(['email' => $email]);
-    if ($stmt->rowCount() > 0) {
-        die("Email already registered.");
+    // Confirm password
+    if ($password !== $confirm_password) {
+        $_SESSION['register_error'] = "Passwords do not match.";
+        header("Location: ../public/register.php");
+        exit();
     }
 
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+    try {
+        // Check if email exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetch()) {
+            $_SESSION['register_error'] = "Email is already registered.";
+            header("Location: ../public/register.php");
+            exit();
+        }
 
-    // Insert new user
-    $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, county, password) 
-                            VALUES (:full_name, :email, :phone, :county, :password)");
-    $stmt->execute([
-        'full_name' => $full_name,
-        'email' => $email,
-        'phone' => $phone,
-        'county' => $county,
-        'password' => $hashed_password
-    ]);
+        // Hash and insert
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, password, county, role)
+                                VALUES (?, ?, ?, ?, ?, 'user')");
+        $stmt->execute([$full_name, $email, $phone, $hashedPassword, $county]);
 
-    // Set session and redirect
-    $_SESSION['user_id'] = $conn->lastInsertId();
-    $_SESSION['email'] = $email;
+        // Auto-login after successful registration
+        $_SESSION['user_id'] = $conn->lastInsertId();
+        $_SESSION['email'] = $email;
+        $_SESSION['user_name'] = $full_name;
+        $_SESSION['county'] = $county;
+        $_SESSION['role'] = 'user';
 
-    header("Location: ../public/dashboard.php");
-    exit();
-} else {
-    die("Invalid request method.");
+        header("Location: ../public/dashboard.php");
+        exit();
+    } catch (PDOException $e) {
+        $_SESSION['register_error'] = "Registration failed: " . $e->getMessage();
+        header("Location: ../public/register.php");
+        exit();
+    }
 }
-?>

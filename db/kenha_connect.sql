@@ -1,80 +1,81 @@
--- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
---
--- Host: 127.0.0.1
--- Generation Time: Jun 26, 2025 at 12:15 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- 1. USERS TABLE
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  county VARCHAR(100),
+  role ENUM('user', 'staff', 'admin') DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- 2. FEEDBACK TABLE
+CREATE TABLE feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_name VARCHAR(100),
+  county VARCHAR(100),
+  feedback_category VARCHAR(50),
+  feedback_subcategory VARCHAR(50),
+  details VARCHAR(50) DEFAULT NULL,
+  description TEXT,
+  photo VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
+-- 3. DEPARTMENTS TABLE
+CREATE TABLE departments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description TEXT
+);
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
+-- 4. STAFF TABLE
+CREATE TABLE staff (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  department INT,
+  role VARCHAR(50),
+  FOREIGN KEY (department) REFERENCES departments(id)
+);
 
---
--- Database: `kenha_connect`
---
+-- 5. COMMENTS TABLE
+CREATE TABLE comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  feedback INT NOT NULL,
+  user INT NOT NULL,
+  comment TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (feedback) REFERENCES feedback(id),
+  FOREIGN KEY (user) REFERENCES users(id)
+);
 
--- --------------------------------------------------------
+-- 6. REACTIONS TABLE
+CREATE TABLE reactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user INT NOT NULL,
+  feedback INT NOT NULL,
+  type ENUM('like', 'dislike', 'star') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user, feedback, type),
+  FOREIGN KEY (user) REFERENCES users(id),
+  FOREIGN KEY (feedback) REFERENCES feedback(id)
+);
 
---
--- Table structure for table `users`
---
+-- 7. NOTIFICATIONS TABLE
+CREATE TABLE notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user INT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user) REFERENCES users(id)
+);
 
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `full_name` varchar(100) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `phone` varchar(15) DEFAULT NULL,
-  `county` varchar(50) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `role` enum('user','staff','admin') DEFAULT 'user',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `full_name`, `email`, `phone`, `county`, `password`, `role`, `created_at`) VALUES
-(1, 'Fatma ahmed', 'fatushahmed@gmail.com', '0741256398', 'Wajir', '$2y$10$A4JnaOn7FiklSd6LVKDesOmp8hScdWcbn0GdqZ.5MsER.btVL/AIi', 'user', '2025-06-26 09:43:08'),
-(2, 'maxwell anambo', 'anambomax@gmail.com', '0112589755', 'Machakos', '$2y$10$O0o5X1ej6dZqx7qpyafC0u1D5MQFR6Btq7fP7x2DAL1eUSakMwi12', 'user', '2025-06-26 10:01:56');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-06-26 17:02:55
+-- 8. LOGS TABLE
+CREATE TABLE logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  actor VARCHAR(100) NOT NULL,
+  action TEXT NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
