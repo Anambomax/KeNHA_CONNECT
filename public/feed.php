@@ -1,6 +1,9 @@
 <?php
-require_once '../api/session.php';
+require_once '../api/session.php'; // Checks session
 require_once '../api/config.php';
+
+// Ensure session has necessary data
+$user_id = $_SESSION['user_id'] ?? null;
 
 // Fetch feedbacks from DB
 $stmt = $conn->prepare("SELECT * FROM feedback ORDER BY created_at DESC");
@@ -21,6 +24,11 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
       background-color: #f2f2f2;
     }
 
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
     .sidebar {
       width: 240px;
       background-color: #003366;
@@ -28,6 +36,7 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
       position: fixed;
       height: 100vh;
       padding-top: 20px;
+      z-index: 999;
     }
 
     .sidebar .logo-container {
@@ -69,6 +78,7 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .main-content {
       margin-left: 260px;
       padding: 30px;
+      flex-grow: 1;
     }
 
     .post-card {
@@ -110,6 +120,7 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
       cursor: pointer;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       z-index: 1000;
+      text-decoration: none;
     }
 
     @media (max-width: 768px) {
@@ -148,18 +159,21 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   <div class="main-content">
     <h2>📰 Feed</h2>
+
     <?php if (!empty($feedbacks)): ?>
       <?php foreach ($feedbacks as $row): ?>
         <div class="post-card">
-          <strong><?= htmlspecialchars($row['user_name']) ?> (<?= htmlspecialchars($row['location']) ?>)</strong><br>
+          <strong><?= htmlspecialchars($row['user_name'] ?? 'Anonymous') ?> (<?= htmlspecialchars($row['location'] ?? 'Unknown') ?>)</strong><br>
           <small><?= date('M d, Y H:i', strtotime($row['created_at'])) ?></small>
           <div class="post-tags">
             <span><?= ucfirst($row['feedback_category']) ?></span>
             <span><?= ucfirst($row['feedback_subcategory']) ?></span>
-            <?php if ($row['details']) echo "<span>" . ucfirst($row['details']) . "</span>"; ?>
+            <?php if (!empty($row['details'])): ?>
+              <span><?= ucfirst($row['details']) ?></span>
+            <?php endif; ?>
           </div>
           <p><?= nl2br(htmlspecialchars($row['description'])) ?></p>
-          <?php if ($row['photo']): ?>
+          <?php if (!empty($row['photo'])): ?>
             <img src="uploads/<?= htmlspecialchars($row['photo']) ?>" class="post-image" alt="Photo">
           <?php endif; ?>
         </div>
