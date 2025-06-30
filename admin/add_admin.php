@@ -15,15 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Password must be at least 8 characters and include a letter, a number, and a special character.";
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, county, password, role, department) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssss", $full_name, $email, $phone, $county, $hashed_password, $role, $department);
+        $stmt = $pdo->prepare("INSERT INTO users (full_name, email, phone, county, password, role, department) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $executed = $stmt->execute([$full_name, $email, $phone, $county, $hashed_password, $role, $department]);
 
-        if ($stmt->execute()) {
+        if ($executed) {
             echo "<script>alert('✅ Admin registered successfully. Redirecting to login...'); 
                   window.location='login.php';</script>";
             exit;
         } else {
-            $error = "❌ Failed to register admin: " . $stmt->error;
+            $error = "❌ Failed to register admin.";
         }
     }
 }
@@ -119,4 +119,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <button type="submit">Register Admin</button>
 </form>
 </body>
-</html>
+</html> 
