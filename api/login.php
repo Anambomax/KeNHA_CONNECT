@@ -17,10 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['email'] = $user['email'];
             $_SESSION['user_name'] = $user['full_name'] ?? $user['email'];
-            $_SESSION['county'] = $user['county'] ?? 'Nairobi'; // Fixed from 'location'
-            $_SESSION['role'] = $user['role'];
+            $_SESSION['county'] = $user['county'] ?? 'Nairobi';
+            $_SESSION['role'] = strtolower($user['role']); // Normalize role to lowercase
 
-            header("Location: ../public/dashboard.php");
+            // Redirect based on role
+            if ($_SESSION['role'] === 'admin') {
+                header("Location: ../admin/dashboard.php");
+            } else {
+                header("Location: ../dashboard.php");
+            }
             exit();
         } else {
             $_SESSION['login_error'] = "Invalid email or password.";
