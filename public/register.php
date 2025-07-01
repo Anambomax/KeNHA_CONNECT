@@ -28,16 +28,16 @@ if (isset($_SESSION['email'])) {
       <form action="../api/register.php" method="POST">
         <input type="text" name="full_name" placeholder="Full Name" required>
 
-        <input type="email" name="email" placeholder="Email" required
-               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-               title="Enter a valid email address">
+        <input type="email" name="email" placeholder="Email (Gmail only)" required
+               pattern="[a-zA-Z0-9._%+-]+@gmail\.com$"
+               title="Only Gmail addresses allowed">
 
         <input type="text" name="phone" placeholder="Phone Number" required
-               pattern="^07\d{8}$"
-               title="Enter a valid Safaricom number (e.g., 0712345678)">
+               pattern="^(07|01|\+2547|\+2541)[0-9]{7}$"
+               title="Starts with 07, 01, +2547, or +2541 followed by 7 digits">
 
-        <input type="password" name="password" placeholder="Password" required
-               pattern=".{6,}" title="Minimum 6 characters required">
+        <input type="password" name="password" placeholder="Password (min 8 chars)" required
+               pattern=".{8,}" title="Minimum 8 characters required">
 
         <input type="password" name="confirm_password" placeholder="Confirm Password" required>
 
