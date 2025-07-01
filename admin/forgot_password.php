@@ -1,3 +1,36 @@
+<?php
+session_start();
+include '../api/config.php'; // make sure $conn is defined here
+
+$success = $error = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'];
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ? AND role = 'admin'");
+    $stmt->execute([$email]);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($admin) {
+        $token = bin2hex(random_bytes(32));
+        $expires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+        // Insert into password_resets table
+        $stmt = $conn->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)");
+        $stmt->execute([$email, $token, $expires]);
+
+        // Generate reset link
+        $resetLink = "http://localhost/Project.Kenha/KeNHA_CONNECT/admin/reset_password.php?token=$token";
+
+        // (Simulate sending email)
+        $success = "✅ Reset link sent! Please check your email.";
+        echo "<script>console.log('Reset Link: $resetLink');</script>"; // for testing only
+    } else {
+        $error = "❌ No admin account found with that email.";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,6 +87,12 @@
 <body>
   <div class="container">
     <h2>Reset Password</h2>
+    <?php if (!empty($success)): ?>
+  <p style="color: green;"><?= $success ?></p>
+<?php elseif (!empty($error)): ?>
+  <p style="color: red;"><?= $error ?></p>
+<?php endif; ?>
+
     <form method="POST">
       <input type="email" name="email" placeholder="Enter your admin email" required>
       <button type="submit">Send Reset Link</button>

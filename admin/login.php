@@ -84,9 +84,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
   <div class="login-wrapper">
     <h2>Admin Login</h2>
-    <form method="POST">
-      <input type="email" name="email" placeholder="Email" required><br>
-      <input type="password" name="password" placeholder="Password" required><br>
+    <form method="POST" autocomplete="off">
+      <!-- Fake fields to prevent browser autofill -->
+      <input type="text" name="fakeuser" id="fakeuser" style="display:none" autocomplete="off">
+      <input type="password" name="fakepass" id="fakepass" style="display:none" autocomplete="off">
+
+      <input type="email" name="email" placeholder="Email" autocomplete="off"
+             required oninvalid="this.setCustomValidity('Please enter email')"
+             oninput="this.setCustomValidity('')">
+
+      <input type="password" name="password" placeholder="Password" autocomplete="off"
+             required oninvalid="this.setCustomValidity('Enter password')"
+             oninput="this.setCustomValidity('')">
 
       <div style="text-align: right; margin-bottom: 10px;">
         <a href="forgot_password.php" style="font-size: 0.9rem; color: #005baa;">Forgot Password?</a>
@@ -95,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button type="submit">Login</button>
     </form>
 
-    <!-- Feedback messages -->
     <div class="message">
       <?php if (!empty($success)): ?>
         <p class="success"><?= $success ?></p>
