@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Password must be at least 8 characters and include a letter, a number, and a special character.";
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (full_name, email, phone, county, password, role, department) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, county, password, role, department) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $executed = $stmt->execute([$full_name, $email, $phone, $county, $hashed_password, $role, $department]);
 
         if ($executed) {

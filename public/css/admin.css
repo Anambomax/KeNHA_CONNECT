@@ -10,6 +10,16 @@
 }
 
 body {
+    /* Center the login container */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full screen height */
+    background-color: #005baa; /* Blue background */
+    margin: 0;
+}
+
     font-family: 'Segoe UI', sans-serif;
     background: #f4f6f8;
     color: #333;
