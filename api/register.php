@@ -9,41 +9,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     $county = $_POST['county'];
+    $role = 'user'; // default
 
     if ($password !== $confirm_password) {
         $_SESSION['register_error'] = "Passwords do not match.";
-        header("Location: ../register.php");
+        header("Location: ../public/register.php");
         exit();
     }
 
     try {
-        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        // Check if email exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
 
         if ($stmt->fetch()) {
-            $_SESSION['register_error'] = "Email already registered.";
-            header("Location: ../register.php");
+            $_SESSION['register_error'] = "Email already exists.";
+            header("Location: ../public/register.php");
             exit();
         }
 
+        // Insert user
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $role = 'user';
+        $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, password, county, role)
+                                VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$full_name, $email, $phone, $hashed_password, $county, $role]);
 
-        $insert = $conn->prepare("INSERT INTO users (full_name, email, phone, password, county, role) 
-                                  VALUES (?, ?, ?, ?, ?, ?)");
-        $insert->execute([$full_name, $email, $phone, $hashed_password, $county, $role]);
-
-        $_SESSION['register_success'] = "Registration successful! Please log in.";
-        header("Location: ../index.php");
+        $_SESSION['login_success'] = "Registration successful. Please log in.";
+        header("Location: ../public/index.php");
         exit();
-
     } catch (PDOException $e) {
         $_SESSION['register_error'] = "Database error: " . $e->getMessage();
-        header("Location: ../register.php");
+        header("Location: ../public/register.php");
         exit();
     }
 } else {
     http_response_code(403);
-    echo "Access Denied.";
+    echo "Access denied.";
     exit();
 }
