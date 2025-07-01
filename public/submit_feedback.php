@@ -5,7 +5,6 @@ if (!isset($_SESSION['email'])) {
   exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,28 +18,24 @@ if (!isset($_SESSION['email'])) {
       margin: 0;
       padding: 20px;
     }
-
     .feedback-form-container {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
       background: white;
-      padding: 30px;
+      padding: 35px;
       border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
-    .feedback-form-container h2 {
+    h2 {
       text-align: center;
       color: #003366;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
-
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
     }
-
     select, textarea, input[type="file"] {
       width: 100%;
       padding: 10px;
@@ -49,27 +44,29 @@ if (!isset($_SESSION['email'])) {
       border: 1px solid #ccc;
       box-sizing: border-box;
     }
-
     .btn-submit {
       background-color: #003366;
       color: white;
       border: none;
       padding: 12px 20px;
-      margin-top: 20px;
+      margin-top: 25px;
       cursor: pointer;
       width: 100%;
       border-radius: 6px;
       font-size: 16px;
     }
-
     .btn-submit:hover {
       background-color: #002244;
     }
-
     .back-link {
       display: block;
       text-align: center;
-      margin-top: 20px;
+      margin-top: 25px;
+      color: #003366;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -91,7 +88,7 @@ if (!isset($_SESSION['email'])) {
       </select>
 
       <div id="incident_sub" style="display:none;">
-        <label for="feedback_subcategory">Select type of incident</label>
+        <label for="feedback_subcategory_incident">Select type of incident</label>
         <select name="feedback_subcategory_incident" onchange="toggleDetails()">
           <option value="">-- Select Subcategory --</option>
           <option value="accident">Accident</option>
