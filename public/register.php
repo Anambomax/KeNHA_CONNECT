@@ -25,21 +25,16 @@ if (isset($_SESSION['email'])) {
         </div>
       <?php endif; ?>
 
-      <form action="../api/register.php" method="POST">
+      <form action="api/register.php" method="POST">
         <input type="text" name="full_name" placeholder="Full Name" required>
-
         <input type="email" name="email" placeholder="Email" required
                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                title="Enter a valid email address">
-
         <input type="text" name="phone" placeholder="Phone Number" required
                pattern="^07\d{8}$"
                title="Enter a valid Safaricom number (e.g., 0712345678)">
-
         <input type="password" name="password" placeholder="Password" required
-               pattern=".{6,}"
-               title="Minimum 6 characters required">
-
+               pattern=".{6,}" title="Minimum 6 characters required">
         <input type="password" name="confirm_password" placeholder="Confirm Password" required>
 
         <select name="county" required>
