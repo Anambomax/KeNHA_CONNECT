@@ -2,6 +2,8 @@
 session_start();
 include '../api/config.php';
 
+$success = $error = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
@@ -13,13 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($admin && password_verify($password, $admin['password'])) {
         $_SESSION['admin_id'] = $admin['id'];
         $_SESSION['admin_name'] = $admin['full_name'];
+        $success = "✅ Login successful. Redirecting to dashboard...";
         echo "<script>
-            alert('Login successful');
-            window.location.href = 'dashboard.php';
+            setTimeout(() => {
+                window.location.href = 'dashboard.php';
+            }, 2000);
         </script>";
-        exit();
     } else {
-        $error = "Wrong email or password.";
+        $error = "❌ Email or password mismatch.";
     }
 }
 ?>
@@ -66,17 +69,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     button:hover {
       background-color: #003e7e;
     }
+    .message {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
   </style>
 </head>
 <body>
   <div class="login-wrapper">
     <h2>Admin Login</h2>
     <form method="POST">
-        <input type="email" name="email" placeholder="Email" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit">Login</button>
+      <input type="email" name="email" placeholder="Email" required><br>
+      <input type="password" name="password" placeholder="Password" required><br>
+
+      <div style="text-align: right; margin-bottom: 10px;">
+        <a href="forgot_password.php" style="font-size: 0.9rem; color: #005baa;">Forgot Password?</a>
+      </div>
+
+      <button type="submit">Login</button>
     </form>
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+
+    <!-- Feedback messages -->
+    <div class="message">
+      <?php if (!empty($success)): ?>
+        <p class="success"><?= $success ?></p>
+      <?php elseif (!empty($error)): ?>
+        <p class="error"><?= $error ?></p>
+      <?php endif; ?>
+    </div>
   </div>
 </body>
 </html>

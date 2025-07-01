@@ -1,5 +1,5 @@
 <?php
-include '../api/config.php';
+include '../api/config.php'; // Make sure $conn is defined in this file
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name  = $_POST['full_name'] ?? '';
@@ -10,11 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password   = $_POST['password'] ?? '';
     $role       = 'admin';
 
-    // Validate password strength
     if (!preg_match("/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$/", $password)) {
         $error = "Password must be at least 8 characters and include a letter, a number, and a special character.";
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Use $conn instead of undefined $pdo
         $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone, county, password, role, department) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $executed = $stmt->execute([$full_name, $email, $phone, $county, $hashed_password, $role, $department]);
 
@@ -28,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -119,4 +119,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <button type="submit">Register Admin</button>
 </form>
 </body>
-</html> 
+</html>

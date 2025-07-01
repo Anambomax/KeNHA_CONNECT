@@ -8,10 +8,10 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $query = "
-    SELECT i.id, i.title, i.description, u.full_name 
-    FROM incidents i 
-    JOIN users u ON i.user_id = u.id 
-    WHERE i.status = 'closed'
+   SELECT f.id, f.title, f.description, u.full_name 
+    FROM feedback f
+    JOIN users u ON f.user_id = u.id
+    WHERE f.status = 'closed'
 ";
 
 $stmt = $conn->query($query);
