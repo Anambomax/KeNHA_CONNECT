@@ -29,7 +29,8 @@ if ($feedback_category === 'incident') {
 }
 
 if (!$description || !$feedback_category || !$subcategory) {
-    echo "Missing required fields.";
+    $_SESSION['flash'] = "❌ Missing required fields.";
+    header("Location: ../public/dashboard.php");
     exit();
 }
 
@@ -46,12 +47,13 @@ if (!empty($_FILES['photo']['name'])) {
     $uploadPath = $uploadDir . $photoName;
 
     if (!move_uploaded_file($_FILES['photo']['tmp_name'], $uploadPath)) {
-        echo "Failed to upload photo.";
+        $_SESSION['flash'] = "❌ Failed to upload photo.";
+        header("Location: ../public/dashboard.php");
         exit();
     }
 }
 
-// Insert feedback
+// Insert into DB
 $stmt = $conn->prepare("INSERT INTO feedback (
     user_name, location, feedback_category, feedback_subcategory, details, description, photo, created_at
 ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
@@ -67,8 +69,9 @@ $success = $stmt->execute([
 ]);
 
 if ($success) {
-    header("Location: ../public/feed.php");
-    exit();
+    $_SESSION['flash'] = "✅ Feedback submitted successfully!";
 } else {
-    echo "Failed to submit feedback.";
+    $_SESSION['flash'] = "❌ Failed to submit feedback.";
 }
+header("Location: ../public/dashboard.php");
+exit();
