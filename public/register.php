@@ -37,8 +37,7 @@ if (isset($_SESSION['email'])) {
                title="Enter a valid Safaricom number (e.g., 0712345678)">
 
         <input type="password" name="password" placeholder="Password" required
-               pattern=".{6,}"
-               title="Minimum 6 characters required">
+               pattern=".{6,}" title="Minimum 6 characters required">
 
         <input type="password" name="confirm_password" placeholder="Confirm Password" required>
 
@@ -46,12 +45,14 @@ if (isset($_SESSION['email'])) {
           <option value="">Select County</option>
           <?php
           $counties = [
-            "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo-Marakwet", "Embu", "Garissa", "Homa Bay",
-            "Isiolo", "Kajiado", "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii", "Kisumu",
-            "Kitui", "Kwale", "Laikipia", "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit", "Meru", "Migori",
-            "Mombasa", "Murang'a", "Nairobi", "Nakuru", "Nandi", "Narok", "Nyamira", "Nyandarua", "Nyeri",
-            "Samburu", "Siaya", "Taita-Taveta", "Tana River", "Tharaka-Nithi", "Trans Nzoia", "Turkana",
-            "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
+            "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo-Marakwet", "Embu",
+            "Garissa", "Homa Bay", "Isiolo", "Kajiado", "Kakamega", "Kericho",
+            "Kiambu", "Kilifi", "Kirinyaga", "Kisii", "Kisumu", "Kitui", "Kwale",
+            "Laikipia", "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit",
+            "Meru", "Migori", "Mombasa", "Murang'a", "Nairobi", "Nakuru",
+            "Nandi", "Narok", "Nyamira", "Nyandarua", "Nyeri", "Samburu",
+            "Siaya", "Taita-Taveta", "Tana River", "Tharaka-Nithi", "Trans Nzoia",
+            "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
           ];
           foreach ($counties as $county) {
               echo "<option value=\"$county\">$county</option>";

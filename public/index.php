@@ -1,8 +1,8 @@
 <?php
 session_start();
 if (isset($_SESSION['email'])) {
-  header("Location: dashboard.php");
-  exit();
+    header("Location: ../dashboard.php");
+    exit();
 }
 ?>
 
@@ -17,12 +17,18 @@ if (isset($_SESSION['email'])) {
   <div class="login-wrapper">
     <div class="login-box">
       <img src="uploads/kenha-logo.png" class="logo" alt="KeNHA Logo">
-      <h2 class="subtitle">KENHA CONNECT</h2>
+      <h2>Login to KeNHA Connect</h2>
+
+      <?php if (isset($_SESSION['login_error'])): ?>
+        <p style="color: red"><?= $_SESSION['login_error']; unset($_SESSION['login_error']); ?></p>
+      <?php endif; ?>
+
       <form action="../api/login.php" method="POST">
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <button class="btn" type="submit">Login</button>
       </form>
+
       <div class="extra-links">
         <p>Don't have an account? <a href="register.php">Register</a></p>
       </div>
