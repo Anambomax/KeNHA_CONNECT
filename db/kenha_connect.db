@@ -78,6 +78,7 @@ DROP TABLE IF EXISTS `feedback`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `feedback` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
   `user_name` varchar(100) DEFAULT NULL,
   `location` varchar(100) DEFAULT NULL,
   `feedback_category` varchar(50) DEFAULT NULL,
@@ -86,7 +87,11 @@ CREATE TABLE `feedback` (
   `description` text DEFAULT NULL,
   `photo` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  `title` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'pending',
+  PRIMARY KEY (`id`),
+  KEY `fk_user_feedback` (`user_id`),
+  CONSTRAINT `fk_user_feedback` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -96,7 +101,7 @@ CREATE TABLE `feedback` (
 
 LOCK TABLES `feedback` WRITE;
 /*!40000 ALTER TABLE `feedback` DISABLE KEYS */;
-INSERT INTO `feedback` VALUES (1,'Erick Anambo','','incident','complaint',NULL,'permit portal has been down since yesterday please fix','fb_686237d8572102.71775977.png','2025-06-30 10:08:08'),(2,'sammy misiko','','incident','complaint',NULL,'so many potholes on nairobi mombasa road.we as drives we are strugling alot','fb_686238ba412ab6.78214599.jpg','2025-06-30 10:11:54');
+INSERT INTO `feedback` VALUES (1,NULL,'Erick Anambo','','incident','complaint',NULL,'permit portal has been down since yesterday please fix','fb_686237d8572102.71775977.png','2025-06-30 10:08:08',NULL,'pending'),(2,NULL,'sammy misiko','','incident','complaint',NULL,'so many potholes on nairobi mombasa road.we as drives we are strugling alot','fb_686238ba412ab6.78214599.jpg','2025-06-30 10:11:54',NULL,'pending');
 /*!40000 ALTER TABLE `feedback` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -154,6 +159,31 @@ LOCK TABLES `notifications` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `password_resets`
+--
+
+DROP TABLE IF EXISTS `password_resets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `password_resets`
+--
+
+LOCK TABLES `password_resets` WRITE;
+/*!40000 ALTER TABLE `password_resets` DISABLE KEYS */;
+/*!40000 ALTER TABLE `password_resets` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `reactions`
 --
 
@@ -181,6 +211,31 @@ CREATE TABLE `reactions` (
 LOCK TABLES `reactions` WRITE;
 /*!40000 ALTER TABLE `reactions` DISABLE KEYS */;
 /*!40000 ALTER TABLE `reactions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `role`
+--
+
+DROP TABLE IF EXISTS `role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(50) NOT NULL,
+  `description` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `role_name` (`role_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `role`
+--
+
+LOCK TABLES `role` WRITE;
+/*!40000 ALTER TABLE `role` DISABLE KEYS */;
+/*!40000 ALTER TABLE `role` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -223,6 +278,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `full_name` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
   `phone` varchar(15) DEFAULT NULL,
   `county` varchar(50) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
@@ -230,7 +286,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -239,7 +295,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Fatma ahmed','fatushahmed@gmail.com','0741256398','Wajir','$2y$10$A4JnaOn7FiklSd6LVKDesOmp8hScdWcbn0GdqZ.5MsER.btVL/AIi','user','2025-06-26 09:43:08'),(2,'maxwell anambo','anambomax@gmail.com','0112589755','Machakos','$2y$10$O0o5X1ej6dZqx7qpyafC0u1D5MQFR6Btq7fP7x2DAL1eUSakMwi12','user','2025-06-26 10:01:56'),(5,'elvis muchiri','muchirielvis@gmail.com','0754963241','Meru','$2y$10$hI2fvyyeIOlrdsgMnOjhGO7J0KbxYRv8rkNQa9GTg1ntiTY762Iqq','user','2025-06-27 08:47:32'),(6,'sammy misiko','sammy@gmail.com','0722222222','Nyandarua','$2y$10$wum.E1FnuCc5C/jpI3o0p.3FaGnAo0swN5q0og1EtG1hotRGrS33a','user','2025-06-27 09:04:21'),(7,'Erick Anambo','anamboerick@gmail.com','0785963214','Kisumu','$2y$10$tfpe8UQDtRXrVnl4EpZS7ugCzHu3ytvBbk21gLk76qkKxpQlTTDqW','user','2025-06-30 06:26:04');
+INSERT INTO `users` VALUES (1,'Fatma ahmed','fatushahmed@gmail.com',NULL,'0741256398','Wajir','$2y$10$A4JnaOn7FiklSd6LVKDesOmp8hScdWcbn0GdqZ.5MsER.btVL/AIi','user','2025-06-26 09:43:08'),(2,'maxwell anambo','anambomax@gmail.com',NULL,'0112589755','Machakos','$2y$10$O0o5X1ej6dZqx7qpyafC0u1D5MQFR6Btq7fP7x2DAL1eUSakMwi12','user','2025-06-26 10:01:56'),(5,'elvis muchiri','muchirielvis@gmail.com',NULL,'0754963241','Meru','$2y$10$hI2fvyyeIOlrdsgMnOjhGO7J0KbxYRv8rkNQa9GTg1ntiTY762Iqq','user','2025-06-27 08:47:32'),(6,'sammy misiko','sammy@gmail.com',NULL,'0722222222','Nyandarua','$2y$10$wum.E1FnuCc5C/jpI3o0p.3FaGnAo0swN5q0og1EtG1hotRGrS33a','user','2025-06-27 09:04:21'),(7,'Erick Anambo','anamboerick@gmail.com',NULL,'0785963214','Kisumu','$2y$10$tfpe8UQDtRXrVnl4EpZS7ugCzHu3ytvBbk21gLk76qkKxpQlTTDqW','user','2025-06-30 06:26:04'),(8,'Rose','ahmed@gmail.com','HR','0722445566','Kilifi','$2y$10$3.2cOKc0tYJIkY0bLNMDrObiRaSDaxWFl382ocduVJXqWVzOVZfY6','admin','2025-07-01 00:16:14'),(9,'Fatush Ahmed','tushtushahmed@gmail.com','ICT','0759830802','Kakamega','$2y$10$eor8EhADZPAYrXEaspssVuFjuSwSSRIrMHS1YyWnquQVCW2syQItO','admin','2025-07-01 16:03:54');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -252,4 +308,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-30 16:35:23
+-- Dump completed on 2025-07-01  9:38:31
