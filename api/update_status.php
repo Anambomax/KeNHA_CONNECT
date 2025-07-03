@@ -6,24 +6,43 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $feedback_id = $_POST['feedback_id'] ?? '';
     $status = $_POST['status'] ?? '';
-    $assigned_to = $_POST['assigned_to'] ?? '';
+    $assigned_to = $_POST['assigned_to'] ?? null;
+    $department = $_POST['department'] ?? null;
 
     // Basic validation
-    if (!$feedback_id || !$status || !$assigned_to) {
+    if (empty($feedback_id) || empty($status)) {
         die("Missing required fields.");
     }
 
-    // Update the feedback
-    $stmt = $conn->prepare("UPDATE feedback 
-                            SET status = ?, assigned_to = ?, updated_at = NOW() 
-                            WHERE id = ?");
-    $success = $stmt->execute([$status, $assigned_to, $feedback_id]);
+    // Optional Debugging - Uncomment to check values
+    /*
+    echo "<pre>";
+    print_r($_POST);
+    echo "</pre>";
+    exit;
+    */
 
-    if ($success) {
-        header("Location: ../admin/feedback.php?msg=updated");
-        exit;
-    } else {
-        echo "Failed to update feedback.";
+    try {
+        // Update feedback record
+        $stmt = $conn->prepare("
+            UPDATE feedback 
+            SET status = ?, 
+                assigned_to = ?, 
+                department = ?, 
+                updated_at = NOW() 
+            WHERE id = ?
+        ");
+
+        $success = $stmt->execute([$status, $assigned_to, $department, $feedback_id]);
+
+        if ($success) {
+            header("Location: ../admin/feedback.php?msg=updated");
+            exit;
+        } else {
+            echo "Failed to update feedback.";
+        }
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
     }
 } else {
     echo "Invalid request method.";

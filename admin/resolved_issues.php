@@ -36,22 +36,19 @@ try {
 
         <?php if (count($resolved) > 0): ?>
         <table>
-            <tr>
-                <th>ID</th>
+            <tr></tr>
                 <th>Reporter</th>
                 <th>Department</th>
                 <th>Title</th>
                 <th>Description</th>
-                <th>Status</th>
             </tr>
             <?php foreach ($resolved as $row): ?>
             <tr>
-                <td><?= htmlspecialchars($row['id']) ?></td>
+                
                 <td><?= htmlspecialchars($row['reporter']) ?></td>
                 <td><?= htmlspecialchars($row['department']) ?></td>
                 <td><?= htmlspecialchars($row['title']) ?></td>
                 <td><?= htmlspecialchars($row['description']) ?></td>
-                <td><?= htmlspecialchars($row['status']) ?></td>
             </tr>
             <?php endforeach; ?>
         </table>

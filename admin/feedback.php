@@ -11,6 +11,7 @@ if (!isset($_SESSION['admin_id'])) {
 // Prepare SQL to get feedback joined with user info
 $query = "
     SELECT f.id, f.title, f.description, f.status, f.assigned_to, u.full_name AS reporter, u.department 
+ 
     FROM feedback f 
     JOIN users u ON f.user_id = u.id
 ";
@@ -43,22 +44,30 @@ try {
     <div class="navbar">KeNHA Connect Admin Panel</div>
     <div class="container">
         <h2>All Feedback</h2>
+
+        <!-- ✅ SUCCESS MESSAGE -->
+        <?php if (isset($_GET['msg']) && $_GET['msg'] === 'updated'): ?>
+            <div id="success-msg" style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 1rem;">
+                ✅ Feedback updated successfully!
+            </div>
+        <?php endif; ?>
+
         <?php if (count($feedback) > 0): ?>
         <table>
             <tr>
-                <th>ID</th>
                 <th>Reporter</th>
                 <th>Department</th>
                 <th>Title</th>
                 <th>Description</th>
                 <th>Status</th>
-                <th>Assign To</th>
+                <th>Assign To Admin</th>
+                <th>Assign To Department</th>
                 <th>Action</th>
             </tr>
             <?php foreach ($feedback as $row): ?>
             <tr>
                 <form method="POST" action="../api/update_status.php">
-                    <td><?= htmlspecialchars($row['id']) ?></td>
+        
                     <td><?= htmlspecialchars($row['reporter']) ?></td>
                     <td><?= htmlspecialchars($row['department']) ?></td>
                     <td><?= htmlspecialchars($row['title']) ?></td>
@@ -73,15 +82,26 @@ try {
                         </select>
                     </td>
 
-                    <!-- Assign Dropdown -->
+                    <!-- Assign To Admin Dropdown -->
                     <td>
-                        <select name="assigned_to" required>
-                            <option value="">--Assign--</option>
+                        <select name="assigned_to">
+                            <option value="">-- Select Admin --</option>
                             <?php foreach ($admins as $admin): ?>
-                                <option value="<?= $admin['id'] ?>" <?= ($row['assigned_to'] == $admin['id']) ? 'selected' : '' ?>>
+                                <option value="<?= $admin['id'] ?>" <?= ($admin['id'] == $row['assigned_to']) ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($admin['full_name']) ?>
                                 </option>
                             <?php endforeach; ?>
+                        </select>
+                    </td>
+
+                    <!-- Assign To Department Dropdown -->
+                    <td>
+                        <select name="department">
+                            <option value="">-- Select Department --</option>
+                            <option value="Maintenance" <?= $row['department'] == 'Maintenance' ? 'selected' : '' ?>>Maintenance</option>
+                            <option value="Drainage" <?= $row['department'] == 'Drainage' ? 'selected' : '' ?>>Drainage</option>
+                            <option value="Traffic" <?= $row['department'] == 'Traffic' ? 'selected' : '' ?>>Traffic</option>
+                            <option value="Safety" <?= $row['department'] == 'Safety' ? 'selected' : '' ?>>Safety</option>
                         </select>
                     </td>
 
@@ -102,5 +122,13 @@ try {
             <a href="dashboard.php">← Back to Dashboard</a>
         </div>
     </div>
+
+    <!-- ✅ Auto-hide Success Message -->
+    <script>
+      setTimeout(() => {
+        const msg = document.getElementById('success-msg');
+        if (msg) msg.style.display = 'none';
+      }, 3000);
+    </script>
 </body>
 </html>
