@@ -251,7 +251,7 @@ try {
 
     <!-- FEED -->
     <div id="feed" class="tab-content">
-      <h2 class="section-title">🧵 Latest Feedback</h2>
+      <h2 class="section-title">🧵 Feed</h2>
       <?php if (!empty($feedbacks)): ?>
         <?php foreach ($feedbacks as $f): ?>
           <div class="info-box">
