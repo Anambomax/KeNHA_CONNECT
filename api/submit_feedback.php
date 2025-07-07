@@ -54,9 +54,9 @@ if (!empty($_FILES['photo']['name'])) {
     }
 }
 
-// Insert into DB
+// Insert into feedback table
 $stmt = $conn->prepare("INSERT INTO feedback (
-    user_name, location, feedback_category, feedback_subcategory, details, description, photo, created_at,user_id
+    user_name, location, feedback_category, feedback_subcategory, details, description, photo, created_at, user_id
 ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
 
 $success = $stmt->execute([
@@ -71,9 +71,15 @@ $success = $stmt->execute([
 ]);
 
 if ($success) {
+    // ✅ Insert notification
+    $notifMsg = "Thank you, $user_name. Your feedback has been received and is under review.";
+    $notif = $conn->prepare("INSERT INTO notifications (user, message, notified) VALUES (?, ?, 1)");
+    $notif->execute([$user_id, $notifMsg]);
+
     $_SESSION['flash'] = "✅ Feedback submitted successfully!";
 } else {
     $_SESSION['flash'] = "❌ Failed to submit feedback.";
 }
+
 header("Location: ../public/dashboard.php");
 exit();
