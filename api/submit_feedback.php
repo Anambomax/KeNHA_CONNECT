@@ -10,6 +10,7 @@ if (!isset($_SESSION['email'])) {
 
 $user_email = $_SESSION['email'];
 $user_name = $_SESSION['user_name'] ?? '';
+$user_id = $_SESSION['user_id'] ?? '';
 $location = $_SESSION['location'] ?? '';
 
 // Get posted data
@@ -53,10 +54,10 @@ if (!empty($_FILES['photo']['name'])) {
     }
 }
 
-// Insert into DB
+// Insert into feedback table
 $stmt = $conn->prepare("INSERT INTO feedback (
-    user_name, location, feedback_category, feedback_subcategory, details, description, photo, created_at
-) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+    user_name, location, feedback_category, feedback_subcategory, details, description, photo, created_at, user_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
 
 $success = $stmt->execute([
     $user_name,
@@ -65,13 +66,20 @@ $success = $stmt->execute([
     $subcategory,
     $details,
     $description,
-    $photoName
+    $photoName,
+    $user_id,
 ]);
 
 if ($success) {
+    // ✅ Insert notification
+    $notifMsg = "Thank you, $user_name. Your feedback has been received and is under review.";
+    $notif = $conn->prepare("INSERT INTO notifications (user, message, notified) VALUES (?, ?, 1)");
+    $notif->execute([$user_id, $notifMsg]);
+
     $_SESSION['flash'] = "✅ Feedback submitted successfully!";
 } else {
     $_SESSION['flash'] = "❌ Failed to submit feedback.";
 }
+
 header("Location: ../public/dashboard.php");
 exit();

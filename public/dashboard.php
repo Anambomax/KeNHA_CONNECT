@@ -7,21 +7,35 @@ if (!isset($_SESSION['email']) || $_SESSION['role'] !== 'user') {
     exit();
 }
 
-// Get user info
 $email = $_SESSION['email'];
 $full_name = $phone = $county = '';
+$unread_count = 0;
 
+// Get user info
 try {
-    $stmt = $conn->prepare("SELECT full_name, email, phone, county FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, full_name, email, phone, county FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($user) {
+        $user_id = $user['id'];
         $full_name = $user['full_name'];
         $phone = $user['phone'];
         $county = $user['county'];
     }
 } catch (PDOException $e) {
     die("Error: " . $e->getMessage());
+}
+
+// Get unread notification count
+try {
+    $stmt = $conn->prepare("SELECT COUNT(*) AS unread_count FROM notifications WHERE user_id = ? AND is_read = 0");
+    $stmt->execute([$user_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result) {
+        $unread_count = $result['unread_count'];
+    }
+} catch (PDOException $e) {
+    // Log error if needed
 }
 
 // Fetch feedback posts
@@ -46,12 +60,10 @@ try {
       font-family: 'Poppins', sans-serif;
       background-color: #f2f4f7;
     }
-
     .dashboard-container {
       display: flex;
       min-height: 100vh;
     }
-
     .sidebar {
       width: 260px;
       background-color: #012c57;
@@ -62,19 +74,16 @@ try {
       flex-direction: column;
       align-items: center;
     }
-
     .sidebar img {
       width: 120px;
       margin-bottom: 10px;
     }
-
     .sidebar h2 {
       font-size: 24px;
       margin-bottom: 30px;
       text-align: center;
       color: white;
     }
-
     .sidebar button {
       display: block;
       width: 100%;
@@ -88,32 +97,26 @@ try {
       cursor: pointer;
       transition: background 0.3s;
     }
-
     .sidebar button:hover,
     .sidebar .active {
       background-color: #03457e;
     }
-
     .main-content {
       flex: 1;
       padding: 40px;
       overflow-y: auto;
     }
-
     .tab-content {
       display: none;
     }
-
     .tab-content.active {
       display: block;
     }
-
     .section-title {
       font-size: 26px;
       margin-bottom: 20px;
       color: #012c57;
     }
-
     .info-box {
       background: white;
       padding: 25px;
@@ -121,12 +124,10 @@ try {
       margin-bottom: 25px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-
     .info-box p {
       font-size: 16px;
       line-height: 1.6;
     }
-
     .feedback-tags span {
       display: inline-block;
       background: #d9ebff;
@@ -136,13 +137,20 @@ try {
       margin-right: 8px;
       font-size: 13px;
     }
-
     .feedback-img {
       margin-top: 10px;
       max-width: 100%;
       border-radius: 8px;
     }
-
+    .reaction-bar {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+    .reaction-bar span {
+      margin-right: 15px;
+      cursor: pointer;
+    }
     .floating-button {
       position: fixed;
       bottom: 30px;
@@ -160,34 +168,19 @@ try {
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       z-index: 1000;
     }
-
-    .reaction-bar {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .reaction-bar span {
-      margin-right: 15px;
-      cursor: pointer;
-    }
-
     @media (max-width: 768px) {
       .dashboard-container {
         flex-direction: column;
       }
-
       .sidebar {
         width: 100%;
         flex-direction: row;
         justify-content: space-around;
         padding: 10px;
       }
-
       .sidebar h2 {
         display: none;
       }
-
       .sidebar button {
         font-size: 14px;
         margin: 5px;
@@ -206,6 +199,14 @@ try {
     <button class="tab-link active" onclick="openTab(event, 'home')">🏠 Home</button>
     <button class="tab-link" onclick="openTab(event, 'feed')">🧵 Feed</button>
     <button class="tab-link" onclick="openTab(event, 'news')">📰 News</button>
+    <button onclick="window.location.href='notifications.php'">
+      🔔 Notifications
+      <?php if ($unread_count > 0): ?>
+        <span style="background:red;color:white;border-radius:50%;padding:2px 8px;font-size:12px;margin-left:5px;">
+          <?= $unread_count ?>
+        </span>
+      <?php endif; ?>
+    </button>
     <button onclick="window.location.href='logout.php'">🚪 Logout</button>
   </div>
 
@@ -251,7 +252,7 @@ try {
 
     <!-- FEED -->
     <div id="feed" class="tab-content">
-      <h2 class="section-title">🧵 Latest Feedback</h2>
+      <h2 class="section-title">🧵 Feed</h2>
       <?php if (!empty($feedbacks)): ?>
         <?php foreach ($feedbacks as $f): ?>
           <div class="info-box">

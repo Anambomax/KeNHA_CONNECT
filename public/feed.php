@@ -139,7 +139,7 @@ $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <div class="main-content">
-  <h2>🧵 Public Feed</h2>
+  <h2>🧵 Feed</h2>
 
   <?php foreach ($feedbacks as $row): ?>
     <div class="post-card" id="post-<?= $row['id'] ?>">
