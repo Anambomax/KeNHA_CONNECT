@@ -1,6 +1,6 @@
 <?php
 // Database configuration
-$host = 'localhost';
+$host = 'localhost'; // or your database host``
 $dbname = 'kenha_connect';
 $username = 'root'; // or your MySQL username
 $password = '';     // or your MySQL password
