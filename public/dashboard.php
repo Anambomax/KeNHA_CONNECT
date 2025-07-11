@@ -60,6 +60,26 @@ try {
       font-family: 'Poppins', sans-serif;
       background-color: #f2f4f7;
     }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 9999;
+      font-size: 16px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      animation: fadeOut 4s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      0%   { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { opacity: 0; display: none; }
+    }
+
     .dashboard-container {
       display: flex;
       min-height: 100vh;
@@ -189,6 +209,11 @@ try {
   </style>
 </head>
 <body>
+
+<?php if (isset($_SESSION['flash'])): ?>
+  <div class="toast"><?= $_SESSION['flash']; ?></div>
+  <?php unset($_SESSION['flash']); ?>
+<?php endif; ?>
 
 <div class="dashboard-container">
 
