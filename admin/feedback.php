@@ -1,4 +1,4 @@
- <?php
+<?php
 session_start();
 include '../api/config.php';
 
@@ -26,10 +26,7 @@ if (!empty($_GET['assigned_to'])) {
     $params[] = $_GET['assigned_to'];
 }
 
-$filterQuery = '';
-if (count($where) > 0) {
-    $filterQuery = 'WHERE ' . implode(' AND ', $where);
-}
+$filterQuery = count($where) > 0 ? 'WHERE ' . implode(' AND ', $where) : '';
 
 $query = "
     SELECT f.id, f.title, f.description, f.status, f.assigned_to, u.full_name AS reporter, f.department 
@@ -57,19 +54,14 @@ try {
 }
 
 // Count filtered feedback statuses
-$counts = [
-    'total' => count($feedback),
-    'pending' => 0,
-    'in_progress' => 0,
-    'resolved' => 0
-];
+$counts = ['total' => count($feedback), 'pending' => 0, 'in_progress' => 0, 'resolved' => 0];
 foreach ($feedback as $f) {
     if ($f['status'] === 'pending') $counts['pending']++;
     elseif ($f['status'] === 'in_progress') $counts['in_progress']++;
     elseif ($f['status'] === 'resolved') $counts['resolved']++;
 }
 
-// Fetch overall stats (not affected by filter)
+// Overall stats
 try {
     $stats = [
         'total' => $conn->query("SELECT COUNT(*) FROM feedback")->fetchColumn(),
@@ -92,6 +84,7 @@ try {
             display: flex;
             gap: 20px;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
         .stats .card {
             background: #f4f6f8;
@@ -102,6 +95,32 @@ try {
         .stats .card strong {
             color: #005baa;
         }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        select, button {
+            padding: 5px;
+        }
+
+        form {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -109,7 +128,7 @@ try {
     <div class="container">
         <h2>All Feedback</h2>
 
-        <!-- 🔢 Filter Summary Counts -->
+        <!-- Filter Summary -->
         <?php if (!empty($_GET)): ?>
         <div style="margin: 1rem 0; padding: 10px; background-color: #eef5f9; border-left: 5px solid #005baa;">
             <strong>Filtered Feedback Summary:</strong><br>
@@ -120,14 +139,14 @@ try {
         </div>
         <?php endif; ?>
 
-        <!-- ✅ SUCCESS MESSAGE -->
+        <!-- Success Message -->
         <?php if (isset($_GET['msg']) && $_GET['msg'] === 'updated'): ?>
         <div id="success-msg" style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 1rem;">
             ✅ Feedback updated successfully!
         </div>
         <?php endif; ?>
 
-        <!-- 📊 FEEDBACK STATS -->
+        <!-- Stats -->
         <div class="stats">
             <div class="card">Total: <strong><?= $stats['total'] ?></strong></div>
             <div class="card">Pending: <strong><?= $stats['pending'] ?></strong></div>
@@ -135,36 +154,38 @@ try {
             <div class="card">Resolved: <strong><?= $stats['resolved'] ?></strong></div>
         </div>
 
-        <!-- 🔍 FILTER FORM -->
-        <form method="GET" style="margin-bottom: 1rem; display: flex; gap: 10px;">
+        <!-- Filters -->
+        <form method="GET" style="margin-bottom: 1rem; display: flex; gap: 10px; flex-wrap: wrap;">
             <select name="status">
                 <option value="">Filter by Status</option>
-                <option value="pending" <?= isset($_GET['status']) && $_GET['status'] == 'pending' ? 'selected' : '' ?>>Pending</option>
-                <option value="in_progress" <?= isset($_GET['status']) && $_GET['status'] == 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                <option value="resolved" <?= isset($_GET['status']) && $_GET['status'] == 'resolved' ? 'selected' : '' ?>>Resolved</option>
+                <option value="pending" <?= $_GET['status'] ?? '' === 'pending' ? 'selected' : '' ?>>Pending</option>
+                <option value="in_progress" <?= $_GET['status'] ?? '' === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
+                <option value="resolved" <?= $_GET['status'] ?? '' === 'resolved' ? 'selected' : '' ?>>Resolved</option>
             </select>
 
             <select name="department">
                 <option value="">Filter by Department</option>
-                <option value="Maintenance" <?= isset($_GET['department']) && $_GET['department'] == 'Maintenance' ? 'selected' : '' ?>>Maintenance</option>
-                <option value="Drainage" <?= isset($_GET['department']) && $_GET['department'] == 'Drainage' ? 'selected' : '' ?>>Drainage</option>
-                <option value="Traffic" <?= isset($_GET['department']) && $_GET['department'] == 'Traffic' ? 'selected' : '' ?>>Traffic</option>
-                <option value="Safety" <?= isset($_GET['department']) && $_GET['department'] == 'Safety' ? 'selected' : '' ?>>Safety</option>
+                <?php foreach (['Maintenance', 'Drainage', 'Traffic', 'Safety'] as $dept): ?>
+                    <option value="<?= $dept ?>" <?= ($_GET['department'] ?? '') === $dept ? 'selected' : '' ?>><?= $dept ?></option>
+                <?php endforeach; ?>
             </select>
 
             <select name="assigned_to">
                 <option value="">Filter by Assigned Admin</option>
                 <?php foreach ($admins as $admin): ?>
-                    <option value="<?= $admin['id'] ?>" <?= (isset($_GET['assigned_to']) && $_GET['assigned_to'] == $admin['id']) ? 'selected' : '' ?>>
+                    <option value="<?= $admin['id'] ?>" <?= ($_GET['assigned_to'] ?? '') == $admin['id'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($admin['full_name']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
 
             <button type="submit">Filter</button>
+            <a href="feedback.php" style="text-decoration:none; padding:6px 12px; background:#ccc; border-radius:4px; color:black;">Clear</a>
         </form>
 
+        <!-- Table -->
         <?php if (count($feedback) > 0): ?>
+        <div class="table-container">
         <table>
             <tr>
                 <th>Reporter</th>
@@ -185,16 +206,16 @@ try {
                     <td><?= htmlspecialchars($row['description']) ?></td>
                     <td>
                         <select name="status" required>
-                            <option value="pending" <?= $row['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                            <option value="in_progress" <?= $row['status'] === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                            <option value="resolved" <?= $row['status'] === 'resolved' ? 'selected' : '' ?>>Resolved</option>
+                            <?php foreach (['pending', 'in_progress', 'resolved'] as $s): ?>
+                                <option value="<?= $s ?>" <?= $row['status'] === $s ? 'selected' : '' ?>><?= ucfirst($s) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </td>
                     <td>
                         <select name="assigned_to">
                             <option value="">-- Select Admin --</option>
                             <?php foreach ($admins as $admin): ?>
-                                <option value="<?= $admin['id'] ?>" <?= ($admin['id'] == $row['assigned_to']) ? 'selected' : '' ?>>
+                                <option value="<?= $admin['id'] ?>" <?= $admin['id'] == $row['assigned_to'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($admin['full_name']) ?>
                                 </option>
                             <?php endforeach; ?>
@@ -203,10 +224,9 @@ try {
                     <td>
                         <select name="department">
                             <option value="">-- Select Department --</option>
-                            <option value="Maintenance" <?= $row['department'] == 'Maintenance' ? 'selected' : '' ?>>Maintenance</option>
-                            <option value="Drainage" <?= $row['department'] == 'Drainage' ? 'selected' : '' ?>>Drainage</option>
-                            <option value="Traffic" <?= $row['department'] == 'Traffic' ? 'selected' : '' ?>>Traffic</option>
-                            <option value="Safety" <?= $row['department'] == 'Safety' ? 'selected' : '' ?>>Safety</option>
+                            <?php foreach (['Maintenance', 'Drainage', 'Traffic', 'Safety'] as $dept): ?>
+                                <option value="<?= $dept ?>" <?= $row['department'] == $dept ? 'selected' : '' ?>><?= $dept ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </td>
                     <td>
@@ -217,6 +237,7 @@ try {
             </tr>
             <?php endforeach; ?>
         </table>
+        </div>
         <?php else: ?>
             <p style="text-align:center; color: gray;">No feedback submitted yet.</p>
         <?php endif; ?>
