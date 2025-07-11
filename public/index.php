@@ -1,11 +1,24 @@
 <?php
 session_start();
-if (isset($_SESSION['email'])) {
-    header("Location: ../dashboard.php");
+
+// ✅ Check if user is already logged in
+if (isset($_SESSION['email']) && isset($_SESSION['role'])) {
+    // Role-based redirect
+    switch ($_SESSION['role']) {
+        case 'ADMIN':
+            header("Location: ../dashboard.php?role=admin");
+            break;
+        case 'staff':
+            header("Location: ../dashboard.php?role=staff");
+            break;
+        case 'user':
+        default:
+            header("Location: ../dashboard.php?role=user");
+            break;
+    }
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
