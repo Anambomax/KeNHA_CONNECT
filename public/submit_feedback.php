@@ -1,16 +1,80 @@
 <?php
 session_start();
+require_once '../api/config.php';
+
 if (!isset($_SESSION['email'])) {
-  header("Location: index.php");
+  header("Location: ../index.php");
   exit();
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $email = $_SESSION['email'];
+  $description = trim($_POST['description']);
+  $feedback_category = $_POST['feedback_category'];
+  $feedback_subcategory = '';
+  $details = null;
+  $photo = null;
+
+  // Determine correct subcategory
+  if ($feedback_category === 'incident') {
+    $feedback_subcategory = $_POST['feedback_subcategory_incident'] ?? '';
+    if ($feedback_subcategory === 'accident') {
+      $details = $_POST['details'] ?? null;
+    }
+  } elseif ($feedback_category === 'general feedback') {
+    $feedback_subcategory = $_POST['feedback_subcategory_general'] ?? '';
+  }
+
+  // Get user info
+  try {
+    $stmt = $conn->prepare("SELECT id, full_name, county FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+      $_SESSION['flash'] = "User not found.";
+      header("Location: ../dashboard.php#feed");
+      exit();
+    }
+
+    $user_id = $user['id'];
+    $user_name = $user['full_name'];
+    $location = $user['county'];
+  } catch (PDOException $e) {
+    die("Error: " . $e->getMessage());
+  }
+
+  // Handle image upload
+  if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+    $fileTmp = $_FILES['photo']['tmp_name'];
+    $fileName = time() . '_' . basename($_FILES['photo']['name']);
+    $targetPath = "../public/uploads/" . $fileName;
+
+    if (move_uploaded_file($fileTmp, $targetPath)) {
+      $photo = $fileName;
+    }
+  }
+
+  // Insert feedback
+  try {
+    $stmt = $conn->prepare("INSERT INTO feedback (user_id, user_name, description, feedback_category, feedback_subcategory, details, photo, location, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    $stmt->execute([$user_id, $user_name, $description, $feedback_category, $feedback_subcategory, $details, $photo, $location]);
+
+    $_SESSION['flash'] = "✅ Feedback submitted successfully!";
+    header("Location: ../dashboard.php#feed");
+    exit();
+  } catch (PDOException $e) {
+    die("DB Error: " . $e->getMessage());
+  }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Submit Feedback - KeNHA Connect</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="../public/css/style.css">
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -73,7 +137,7 @@ if (!isset($_SESSION['email'])) {
 <body>
   <div class="feedback-form-container">
     <h2>📢 Submit Feedback</h2>
-    <form action="../api/submit_feedback.php" method="POST" enctype="multipart/form-data">
+    <form action="" method="POST" enctype="multipart/form-data">
       <label for="photo">Upload Photo (optional)</label>
       <input type="file" name="photo" accept="image/*">
 
@@ -118,7 +182,7 @@ if (!isset($_SESSION['email'])) {
       <button class="btn-submit" type="submit">Submit Feedback</button>
     </form>
 
-    <a class="back-link" href="dashboard.php">← Back to Dashboard</a>
+    <a class="back-link" href="../dashboard.php">← Back to Dashboard</a>
   </div>
 
   <script>

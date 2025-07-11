@@ -2,7 +2,6 @@
 session_start();
 require_once 'api/config.php';
 
-// ✅ General login check only
 if (!isset($_SESSION['email']) || !isset($_SESSION['role'])) {
     header("Location: index.php");
     exit();
@@ -13,7 +12,6 @@ $email = $_SESSION['email'];
 $full_name = $phone = $county = '';
 $unread_count = 0;
 
-// Get user info
 try {
     $stmt = $conn->prepare("SELECT id, full_name, email, phone, county FROM users WHERE email = ?");
     $stmt->execute([$email]);
@@ -28,20 +26,15 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Get unread notification count
 try {
     $stmt = $conn->prepare("SELECT COUNT(*) AS unread_count FROM notifications WHERE user_id = ? AND is_read = 0");
     $stmt->execute([$user_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($result) {
-        $unread_count = $result['unread_count'];
-    }
-} catch (PDOException $e) {
-    // Log error if needed
-}
+    $unread_count = $result ? $result['unread_count'] : 0;
+} catch (PDOException $e) {}
 
-// Fetch feedback posts
 try {
+    // Use safe fallback if feedback.user column is missing
     $stmt = $conn->prepare("SELECT * FROM feedback ORDER BY created_at DESC");
     $stmt->execute();
     $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -50,16 +43,12 @@ try {
 }
 ?>
 
-<!-- HTML Begins -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - KeNHA Connect</title>
   <link rel="stylesheet" href="public/css/style.css">
-  <style>
-    /* No style changes needed — already good */
-  </style>
 </head>
 <body>
 
@@ -69,10 +58,8 @@ try {
 <?php endif; ?>
 
 <div class="dashboard-container">
-
-  <!-- Sidebar -->
   <div class="sidebar">
-    <img src="uploads/kenha-logo.png" alt="KeNHA Logo">
+    <img src="public/uploads/kenha-logo.png" alt="KeNHA Logo" class="kenha-logo">
     <h2>KeNHA CONNECT</h2>
     <button class="tab-link active" onclick="openTab(event, 'home')">🏠 Home</button>
     <button class="tab-link" onclick="openTab(event, 'feed')">🧵 Feed</button>
@@ -81,7 +68,6 @@ try {
     <?php if ($role === 'staff'): ?>
       <button class="tab-link" onclick="openTab(event, 'staff')">🛠 Staff Tools</button>
     <?php endif; ?>
-
     <?php if ($role === 'admin'): ?>
       <button class="tab-link" onclick="openTab(event, 'admin')">⚙️ Admin Panel</button>
     <?php endif; ?>
@@ -96,12 +82,10 @@ try {
     </button>
 
     <button onclick="window.location.href='api/logout.php'">🚪 Logout</button>
+    <button onclick="toggleDarkMode()">🌓 Dark Mode</button>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-
-    <!-- HOME TAB -->
     <div id="home" class="tab-content active">
       <h2 class="section-title">👋 Welcome, <?= htmlspecialchars($full_name); ?> (<?= strtoupper($role); ?>)</h2>
 
@@ -118,13 +102,12 @@ try {
       </div>
     </div>
 
-    <!-- FEED TAB -->
     <div id="feed" class="tab-content">
       <h2 class="section-title">🧵 Feed</h2>
       <?php if (!empty($feedbacks)): ?>
         <?php foreach ($feedbacks as $f): ?>
-          <div class="info-box">
-            <strong><?= htmlspecialchars($f['user_name'] ?? 'Anonymous') ?> – <?= htmlspecialchars($f['location'] ?? 'Unknown') ?></strong><br>
+          <div class="info-box" data-feedback-id="<?= $f['id'] ?>">
+            <strong><?= htmlspecialchars($f['user_name'] ?? 'Anonymous') ?></strong><br>
             <small><?= date('M d, Y H:i', strtotime($f['created_at'])) ?></small>
             <div class="feedback-tags">
               <span><?= ucfirst($f['feedback_category']) ?></span>
@@ -135,11 +118,20 @@ try {
             </div>
             <p><?= nl2br(htmlspecialchars($f['description'])) ?></p>
             <?php if (!empty($f['photo'])): ?>
-              <img src="uploads/<?= htmlspecialchars($f['photo']) ?>" class="feedback-img" alt="Feedback Photo">
+              <img src="public/uploads/<?= htmlspecialchars($f['photo']) ?>" class="feedback-img" alt="Feedback Photo">
             <?php endif; ?>
+
             <div class="reaction-bar">
-              <span>👍 0</span>
-              <span>💬 0</span>
+              <span class="react-btn" data-type="like">👍 <span class="like-count">0</span></span>
+              <span class="react-btn" data-type="dislike">👎 <span class="dislike-count">0</span></span>
+              <span class="react-btn" data-type="star">⭐ <span class="star-count">0</span></span>
+              <span class="react-btn comment-toggle">💬 <span class="comment-count">0</span></span>
+            </div>
+
+            <div class="comments-thread" style="display:none; margin-top:10px;">
+              <div class="comment-list"></div>
+              <textarea class="new-comment" placeholder="Write a comment..."></textarea>
+              <button class="btn post-comment">Post</button>
             </div>
           </div>
         <?php endforeach; ?>
@@ -148,13 +140,11 @@ try {
       <?php endif; ?>
     </div>
 
-    <!-- NEWS TAB -->
     <div id="news" class="tab-content">
       <h2 class="section-title">📰 News & Reports</h2>
       <p>Coming soon: updates on resolved issues, road projects, and public announcements.</p>
     </div>
 
-    <!-- STAFF TAB -->
     <?php if ($role === 'staff'): ?>
       <div id="staff" class="tab-content">
         <h2 class="section-title">🛠 Staff Tools</h2>
@@ -165,7 +155,6 @@ try {
       </div>
     <?php endif; ?>
 
-    <!-- ADMIN TAB -->
     <?php if ($role === 'admin'): ?>
       <div id="admin" class="tab-content">
         <h2 class="section-title">⚙️ Admin Panel</h2>
@@ -176,21 +165,117 @@ try {
         </div>
       </div>
     <?php endif; ?>
-
   </div>
 </div>
 
-<!-- Floating Add Feedback Button -->
-<a href="submit_feedback.php" class="floating-button">＋</a>
+<a href="public/submit_feedback.php" class="floating-button">＋</a>
 
 <script>
 function openTab(evt, tabId) {
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
-  evt.currentTarget.classList.add('active');
+  if (evt) evt.currentTarget.classList.add('active');
 }
-</script>
 
+window.onload = function () {
+  const hash = window.location.hash;
+  if (hash === "#feed") {
+    document.querySelector('.tab-link[onclick*="feed"]').click();
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.info-box').forEach(post => {
+    const feedbackId = post.getAttribute('data-feedback-id');
+    if (!feedbackId) return;
+
+    // Get counts
+    fetch(`api/get_comments.php?feedback_id=${feedbackId}`)
+      .then(res => res.json())
+      .then(data => post.querySelector('.comment-count').innerText = data.length);
+
+    fetch(`api/get_reactions.php?feedback_id=${feedbackId}`)
+      .then(res => res.json())
+      .then(data => {
+        post.querySelector('.like-count').innerText = data.like || 0;
+        post.querySelector('.dislike-count').innerText = data.dislike || 0;
+        post.querySelector('.star-count').innerText = data.star || 0;
+      });
+
+    // Comment thread toggle
+    const toggle = post.querySelector('.comment-toggle');
+    const thread = post.querySelector('.comments-thread');
+    const list = post.querySelector('.comment-list');
+    const textarea = post.querySelector('.new-comment');
+
+    toggle.addEventListener('click', () => {
+      thread.style.display = thread.style.display === 'none' ? 'block' : 'none';
+      list.innerHTML = 'Loading...';
+      fetch(`api/get_comments.php?feedback_id=${feedbackId}`)
+        .then(res => res.json())
+        .then(comments => {
+          list.innerHTML = '';
+          comments.forEach(c => {
+            const div = document.createElement('div');
+            div.innerHTML = `<strong>${c.full_name}</strong><br><small>${new Date(c.created_at).toLocaleString()}</small><p>${c.comment}</p><hr>`;
+            list.appendChild(div);
+          });
+        });
+    });
+
+    // Add comment
+    post.querySelector('.post-comment').addEventListener('click', () => {
+      const text = textarea.value.trim();
+      if (!text) return;
+      fetch('api/add_comment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `feedback_id=${feedbackId}&comment=${encodeURIComponent(text)}`
+      }).then(res => res.text()).then(response => {
+        if (response === 'success') {
+          textarea.value = '';
+          toggle.click(); toggle.click(); // Refresh thread
+        }
+      });
+    });
+
+    // Reactions
+    post.querySelectorAll('.react-btn[data-type]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.getAttribute('data-type');
+        fetch('api/add_reaction.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `feedback_id=${feedbackId}&type=${type}`
+        }).then(res => res.text()).then(response => {
+          if (response === 'success') {
+            fetch(`api/get_reactions.php?feedback_id=${feedbackId}`)
+              .then(res => res.json())
+              .then(data => {
+                post.querySelector('.like-count').innerText = data.like || 0;
+                post.querySelector('.dislike-count').innerText = data.dislike || 0;
+                post.querySelector('.star-count').innerText = data.star || 0;
+              });
+          }
+        });
+      });
+    });
+  });
+});
+</script>
+<script>
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'on' : 'off');
+}
+
+// Enable saved preference
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('darkMode') === 'on') {
+    document.body.classList.add('dark-mode');
+  }
+});
+</script>
 </body>
 </html>

@@ -6,6 +6,7 @@ body.kenha-bg, body {
   background: #f2f2f2;
   color: #333;
   box-sizing: border-box;
+  overflow: hidden; /* Prevent body from scrolling */
 }
 
 h2, h3, h4 {
@@ -116,6 +117,10 @@ input, select, textarea {
 }
 
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
   width: 260px;
   background-color: #003366;
   color: white;
@@ -130,9 +135,10 @@ input, select, textarea {
 }
 
 .sidebar img,
-.sidebar .kenha-logo {
-  width: 100px;
-  margin-bottom: 10px;
+.kenha-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 15px;
 }
 
 .sidebar h2,
@@ -183,6 +189,7 @@ input, select, textarea {
   padding: 40px;
   margin-left: 260px;
   overflow-y: auto;
+  height: 100vh;
   box-sizing: border-box;
 }
 
@@ -302,6 +309,8 @@ input, select, textarea {
   .main-content {
     margin-left: 0;
     padding: 20px;
+    height: auto;
+    overflow-y: visible;
   }
 
   .sidebar h2 {
@@ -329,4 +338,64 @@ input, select, textarea {
     padding: 10px;
     font-size: 14px;
   }
+}
+.comments-thread {
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.comment-list div {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.new-comment {
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.post-comment {
+  margin-top: 8px;
+  background-color: #003366;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+/* DARK MODE SUPPORT */
+body.dark-mode {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+body.dark-mode .info-box {
+  background-color: #1e1e1e;
+  color: #eaeaea;
+}
+
+body.dark-mode .sidebar {
+  background-color: #181818;
+}
+
+body.dark-mode .tab-link,
+body.dark-mode .tab-link.active {
+  background-color: #333;
+  color: #fff;
+}
+
+body.dark-mode .floating-button {
+  background-color: #444;
+  color: #fff;
+}
+
+body.dark-mode textarea,
+body.dark-mode .new-comment {
+  background-color: #2b2b2b;
+  color: #f1f1f1;
+  border: 1px solid #555;
 }
