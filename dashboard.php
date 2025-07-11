@@ -8,7 +8,7 @@ if (!isset($_SESSION['email']) || !isset($_SESSION['role'])) {
     exit();
 }
 
-$role = $_SESSION['role'];
+$role = strtolower($_SESSION['role']);
 $email = $_SESSION['email'];
 $full_name = $phone = $county = '';
 $unread_count = 0;
@@ -82,7 +82,7 @@ try {
       <button class="tab-link" onclick="openTab(event, 'staff')">🛠 Staff Tools</button>
     <?php endif; ?>
 
-    <?php if ($role === 'ADMIN'): ?>
+    <?php if ($role === 'admin'): ?>
       <button class="tab-link" onclick="openTab(event, 'admin')">⚙️ Admin Panel</button>
     <?php endif; ?>
 
@@ -166,7 +166,7 @@ try {
     <?php endif; ?>
 
     <!-- ADMIN TAB -->
-    <?php if ($role === 'ADMIN'): ?>
+    <?php if ($role === 'admin'): ?>
       <div id="admin" class="tab-content">
         <h2 class="section-title">⚙️ Admin Panel</h2>
         <div class="info-box">
