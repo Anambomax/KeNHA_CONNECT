@@ -1,19 +1,26 @@
 <?php
 // Database configuration
-$host = 'localhost'; // or your database host``
-$dbname = 'kenha_connect';
-$username = 'root'; // or your MySQL username
-$password = '';     // or your MySQL password
+$host     = 'localhost';         // Change if not using localhost
+$dbname   = 'kenha_connect';     // Your database name
+$username = 'root';              // Default XAMPP username
+$password = '';                  // Default XAMPP password
 
 try {
-    // Create a PDO connection
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    
-    // Enable exception mode for debugging
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
+    // Set DSN
+    $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+
+    // PDO options for security and performance
+    $options = [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Throw exceptions on errors
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,       // Return rows as associative arrays
+        PDO::ATTR_EMULATE_PREPARES   => false,                  // Use real prepared statements
+    ];
+
+    // Create PDO instance
+    $conn = new PDO($dsn, $username, $password, $options);
+
 } catch (PDOException $e) {
-    // Stop execution and print error
+    // Show connection error
     die("Database connection failed: " . $e->getMessage());
 }
 ?>

@@ -12,31 +12,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password'])) {
-            // Set session variables
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
+            // ✅ Set session
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['email']     = $user['email'];
             $_SESSION['user_name'] = $user['full_name'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['county'] = $user['county'] ?? 'Nairobi';
+            $_SESSION['role']      = $user['role'];
+            $_SESSION['county']    = $user['county'] ?? 'Nairobi';
 
-            // Redirect based on role
-            if ($user['role'] === 'ADMIN') {
-                header("Location: ../admin/dashboard.php");
-                exit();
-            } else {
-                header("Location: ../public/dashboard.php");
-                exit();
-            }
-        } else {
-            $_SESSION['login_error'] = "Invalid email or password.";
-            header("Location: ../public/index.php");
+            // ✅ Redirect to dashboard
+            header("Location: ../dashboard.php?role={$user['role']}");
             exit();
         }
+
+        // ❌ Invalid
+        $_SESSION['login_error'] = "Invalid email or password.";
+        header("Location: ../public/index.php");
+        exit();
+
     } catch (PDOException $e) {
         $_SESSION['login_error'] = "Database error: " . $e->getMessage();
         header("Location: ../public/index.php");
         exit();
     }
+
 } else {
     http_response_code(403);
     echo "Access denied.";

@@ -37,7 +37,6 @@ resource "aws_iam_user_login_profile" "admin_user_console" {
 
 # --- 4. MFA Device (Virtual MFA Token) ---
 resource "aws_iam_virtual_mfa_device" "admin_mfa" {
-  name = "admin-user-mfa"
   path = "/"
   virtual_mfa_device_name = "admin-user"
 

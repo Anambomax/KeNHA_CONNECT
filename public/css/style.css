@@ -1,5 +1,5 @@
 /* === General Styles === */
-body.kenha-bg {
+body.kenha-bg, body {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -40,7 +40,28 @@ input, select, textarea {
   box-sizing: border-box;
 }
 
-/* === Login & Register Styles === */
+/* === Toast Notification === */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  z-index: 9999;
+  font-size: 16px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  animation: fadeOut 4s ease forwards;
+}
+
+@keyframes fadeOut {
+  0%   { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; display: none; }
+}
+
+/* === Login & Register === */
 .login-wrapper, .register-wrapper {
   display: flex;
   justify-content: center;
@@ -60,8 +81,7 @@ input, select, textarea {
   text-align: center;
 }
 
-.login-box .logo,
-.register-box .logo {
+.login-box .logo, .register-box .logo {
   display: block;
   margin: 0 auto 20px auto;
   width: 80px;
@@ -96,14 +116,11 @@ input, select, textarea {
 }
 
 .sidebar {
-  width: 240px;
+  width: 260px;
   background-color: #003366;
   color: white;
-  padding: 20px 10px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
+  padding: 30px 20px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -112,45 +129,47 @@ input, select, textarea {
   z-index: 999;
 }
 
-.logo-container {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
+.sidebar img,
 .sidebar .kenha-logo {
   width: 100px;
-  height: auto;
   margin-bottom: 10px;
 }
 
+.sidebar h2,
 .kenha-title {
-  font-size: 18px;
-  margin: 0;
+  font-size: 20px;
+  margin: 0 0 20px 0;
   text-align: center;
+  color: white;
 }
 
-.nav-menu {
+.sidebar button,
+.nav-menu li {
+  display: block;
   width: 100%;
+  margin-bottom: 15px;
+  padding: 14px;
+  font-size: 16px;
+  background: none;
+  color: white;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.3s;
+  border-radius: 8px;
+}
+
+.sidebar button:hover,
+.sidebar .active,
+.nav-menu li:hover,
+.nav-menu li.active {
+  background-color: #0059b3;
 }
 
 .nav-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
-}
-
-.nav-menu li {
-  margin: 10px 15px;
-  padding: 10px;
-  background-color: #004080;
-  border-radius: 8px;
-  text-align: center;
-  transition: background-color 0.3s;
-}
-
-.nav-menu li:hover,
-.nav-menu li.active {
-  background-color: #0059b3;
 }
 
 .nav-menu a {
@@ -160,30 +179,52 @@ input, select, textarea {
 
 /* === Main Content === */
 .main-content {
+  flex: 1;
+  padding: 40px;
   margin-left: 260px;
-  padding: 30px;
-  flex-grow: 1;
+  overflow-y: auto;
   box-sizing: border-box;
 }
 
-/* === Profile & Info Cards === */
-.user-profile,
-.info-section {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.section-title {
+  font-size: 26px;
   margin-bottom: 20px;
+  color: #003366;
 }
 
-/* === Feed & News Cards === */
-.post-box textarea {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  resize: vertical;
-  margin-bottom: 10px;
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* === Cards & Info Boxes === */
+.info-box, .user-profile, .info-section {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.info-box p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* === Feed & Tags === */
+.feedback-tags span,
+.post-tags span {
+  display: inline-block;
+  background: #d9ebff;
+  color: #003366;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-right: 8px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .feed-posts .post,
@@ -195,27 +236,27 @@ input, select, textarea {
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-.post-tags span {
-  background: #e0f0ff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  margin-right: 8px;
-  color: #003366;
-  font-weight: 500;
-}
-
+.feedback-img,
 .post-image {
+  margin-top: 10px;
   max-width: 100%;
   border-radius: 8px;
-  margin-top: 10px;
 }
 
+.reaction-bar,
+.post-actions {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #003366;
+}
+
+.reaction-bar span,
 .post-actions span {
   margin-right: 15px;
   cursor: pointer;
-  color: #003366;
 }
 
+/* === News & Alerts === */
 .news-item {
   background: white;
   padding: 15px;
@@ -224,7 +265,7 @@ input, select, textarea {
   border-radius: 8px;
 }
 
-/* === Floating Button === */
+/* === Floating Feedback Button === */
 .floating-button {
   position: fixed;
   bottom: 30px;
@@ -243,7 +284,7 @@ input, select, textarea {
   z-index: 1000;
 }
 
-/* === Responsive === */
+/* === Responsive Layout === */
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
@@ -251,33 +292,41 @@ input, select, textarea {
 
   .sidebar {
     width: 100%;
-    height: auto;
     flex-direction: row;
     justify-content: space-around;
-    position: relative;
     padding: 10px;
+    height: auto;
+    position: relative;
   }
 
   .main-content {
     margin-left: 0;
-    margin-top: 20px;
-    padding: 15px;
+    padding: 20px;
   }
 
-  .nav-menu ul {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+  .sidebar h2 {
+    display: none;
   }
 
-  .nav-menu li {
-    margin: 5px;
-    padding: 8px 12px;
+  .sidebar button {
     font-size: 14px;
+    margin: 5px;
   }
 
   .floating-button {
     right: 20px;
     bottom: 20px;
+  }
+
+  .nav-menu ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-menu li {
+    margin: 5px;
+    padding: 10px;
+    font-size: 14px;
   }
 }
