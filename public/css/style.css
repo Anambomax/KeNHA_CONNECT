@@ -367,6 +367,7 @@ input, select, textarea {
   border-radius: 6px;
   cursor: pointer;
 }
+
 /* DARK MODE SUPPORT */
 body.dark-mode {
   background-color: #121212;

@@ -1,60 +1,36 @@
 <?php
-session_start();
 require_once 'config.php';
+session_start();
 
-if (!isset($_SESSION['email'])) {
-    http_response_code(401);
-    echo 'unauthorized';
-    exit();
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Not logged in']);
+    exit;
 }
 
-$user_email = $_SESSION['email'];
-
-// Fetch user ID
-$stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-$stmt->execute([$user_email]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$user) {
-    http_response_code(403);
-    echo 'user not found';
-    exit();
-}
-
-$user_id = $user['id'];
+$user_id = $_SESSION['user_id'];
 $feedback_id = $_POST['feedback_id'] ?? null;
 $type = $_POST['type'] ?? null;
 
 $valid_types = ['like', 'dislike', 'star'];
+
 if (!$feedback_id || !in_array($type, $valid_types)) {
-    http_response_code(400);
-    echo 'invalid data';
-    exit();
+    echo json_encode(['success' => false, 'message' => 'Invalid data']);
+    exit;
 }
 
 try {
-    // Check if user already reacted to this feedback
-    $stmt = $conn->prepare("SELECT id, type FROM reactions WHERE feedback_id = ? AND user_id = ?");
-    $stmt->execute([$feedback_id, $user_id]);
-    $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Remove existing reaction by user on this feedback
+    $delete = $conn->prepare("DELETE FROM reactions WHERE user = ? AND feedback = ?");
+    $delete->execute([$user_id, $feedback_id]);
 
-    if ($existing) {
-        if ($existing['type'] === $type) {
-            // Same reaction → remove it (toggle off)
-            $stmt = $conn->prepare("DELETE FROM reactions WHERE id = ?");
-            $stmt->execute([$existing['id']]);
-        } else {
-            // Different reaction → update
-            $stmt = $conn->prepare("UPDATE reactions SET type = ?, created_at = NOW() WHERE id = ?");
-            $stmt->execute([$type, $existing['id']]);
-        }
-    } else {
-        // No existing reaction → insert new
-        $stmt = $conn->prepare("INSERT INTO reactions (feedback_id, user_id, type) VALUES (?, ?, ?)");
-        $stmt->execute([$feedback_id, $user_id, $type]);
-    }
+    // Add new reaction
+    $insert = $conn->prepare("INSERT INTO reactions (user, feedback, type) VALUES (?, ?, ?)");
+    $insert->execute([$user_id, $feedback_id, $type]);
 
-    echo 'success';
+    echo json_encode(['success' => true]);
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo 'db error';
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
+?>

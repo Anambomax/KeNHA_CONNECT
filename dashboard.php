@@ -34,7 +34,6 @@ try {
 } catch (PDOException $e) {}
 
 try {
-    // Use safe fallback if feedback.user column is missing
     $stmt = $conn->prepare("SELECT * FROM feedback ORDER BY created_at DESC");
     $stmt->execute();
     $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -87,7 +86,7 @@ try {
 
   <div class="main-content">
     <div id="home" class="tab-content active">
-      <h2 class="section-title">👋 Welcome, <?= htmlspecialchars($full_name); ?> (<?= strtoupper($role); ?>)</h2>
+      <h2 class="section-title">👋 Welcome, <?= htmlspecialchars($full_name); ?> </h2>
 
       <div class="info-box">
         <h3>📄 Your Profile</h3>
@@ -121,11 +120,11 @@ try {
               <img src="public/uploads/<?= htmlspecialchars($f['photo']) ?>" class="feedback-img" alt="Feedback Photo">
             <?php endif; ?>
 
-            <div class="reaction-bar">
-              <span class="react-btn" data-type="like">👍 <span class="like-count">0</span></span>
-              <span class="react-btn" data-type="dislike">👎 <span class="dislike-count">0</span></span>
-              <span class="react-btn" data-type="star">⭐ <span class="star-count">0</span></span>
-              <span class="react-btn comment-toggle">💬 <span class="comment-count">0</span></span>
+            <div class="reactions" data-feedback-id="<?= $f['id'] ?>">
+              <span class="reaction" data-type="like" data-feedback="<?= $f['id'] ?>">👍 <span id="like-count-<?= $f['id'] ?>">0</span></span>
+              <span class="reaction" data-type="dislike" data-feedback="<?= $f['id'] ?>">👎 <span id="dislike-count-<?= $f['id'] ?>">0</span></span>
+              <span class="reaction" data-type="star" data-feedback="<?= $f['id'] ?>">⭐ <span id="star-count-<?= $f['id'] ?>">0</span></span>
+              <span class="reaction comment-toggle" data-feedback="<?= $f['id'] ?>">💬 <span id="comment-count-<?= $f['id'] ?>">0</span></span>
             </div>
 
             <div class="comments-thread" style="display:none; margin-top:10px;">
@@ -190,20 +189,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackId = post.getAttribute('data-feedback-id');
     if (!feedbackId) return;
 
-    // Get counts
+    // Load comment count
     fetch(`api/get_comments.php?feedback_id=${feedbackId}`)
       .then(res => res.json())
-      .then(data => post.querySelector('.comment-count').innerText = data.length);
-
-    fetch(`api/get_reactions.php?feedback_id=${feedbackId}`)
-      .then(res => res.json())
       .then(data => {
-        post.querySelector('.like-count').innerText = data.like || 0;
-        post.querySelector('.dislike-count').innerText = data.dislike || 0;
-        post.querySelector('.star-count').innerText = data.star || 0;
+        const countSpan = document.getElementById(`comment-count-${feedbackId}`);
+        if (countSpan) countSpan.textContent = data.count || 0;
       });
 
-    // Comment thread toggle
+    // Load reaction counts immediately
+    loadReactions(feedbackId);
+
     const toggle = post.querySelector('.comment-toggle');
     const thread = post.querySelector('.comments-thread');
     const list = post.querySelector('.comment-list');
@@ -214,9 +210,9 @@ document.addEventListener('DOMContentLoaded', () => {
       list.innerHTML = 'Loading...';
       fetch(`api/get_comments.php?feedback_id=${feedbackId}`)
         .then(res => res.json())
-        .then(comments => {
+        .then(data => {
           list.innerHTML = '';
-          comments.forEach(c => {
+          data.comments.forEach(c => {
             const div = document.createElement('div');
             div.innerHTML = `<strong>${c.full_name}</strong><br><small>${new Date(c.created_at).toLocaleString()}</small><p>${c.comment}</p><hr>`;
             list.appendChild(div);
@@ -224,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Add comment
     post.querySelector('.post-comment').addEventListener('click', () => {
       const text = textarea.value.trim();
       if (!text) return;
@@ -235,47 +230,56 @@ document.addEventListener('DOMContentLoaded', () => {
       }).then(res => res.text()).then(response => {
         if (response === 'success') {
           textarea.value = '';
-          toggle.click(); toggle.click(); // Refresh thread
+          toggle.click(); toggle.click();
         }
       });
     });
 
-    // Reactions
-    post.querySelectorAll('.react-btn[data-type]').forEach(btn => {
+    post.querySelectorAll('.reaction[data-type]').forEach(btn => {
       btn.addEventListener('click', () => {
         const type = btn.getAttribute('data-type');
         fetch('api/add_reaction.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: `feedback_id=${feedbackId}&type=${type}`
-        }).then(res => res.text()).then(response => {
-          if (response === 'success') {
-            fetch(`api/get_reactions.php?feedback_id=${feedbackId}`)
-              .then(res => res.json())
-              .then(data => {
-                post.querySelector('.like-count').innerText = data.like || 0;
-                post.querySelector('.dislike-count').innerText = data.dislike || 0;
-                post.querySelector('.star-count').innerText = data.star || 0;
-              });
-          }
+        }).then(res => res.json()).then(response => {
+          if (response.success) loadReactions(feedbackId);
         });
       });
     });
   });
 });
-</script>
-<script>
+
+function loadReactions(feedbackId) {
+  fetch(`api/get_reactions.php?feedback_id=${feedbackId}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById(`like-count-${feedbackId}`).textContent = data.counts.like;
+      document.getElementById(`dislike-count-${feedbackId}`).textContent = data.counts.dislike;
+      document.getElementById(`star-count-${feedbackId}`).textContent = data.counts.star;
+
+      document.querySelectorAll(`.reactions[data-feedback-id="${feedbackId}"] .reaction`).forEach(span => {
+        span.classList.remove('active-reaction');
+      });
+
+      if (data.user_reaction) {
+        const activeSpan = document.querySelector(`.reaction[data-feedback="${feedbackId}"][data-type="${data.user_reaction}"]`);
+        if (activeSpan) activeSpan.classList.add('active-reaction');
+      }
+    });
+}
+
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
   localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'on' : 'off');
 }
 
-// Enable saved preference
 document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('darkMode') === 'on') {
     document.body.classList.add('dark-mode');
   }
 });
 </script>
+
 </body>
 </html>
